@@ -1,10 +1,13 @@
--- Reserved for the D1 history layer. The initial deploy does not require a D1 binding.
 CREATE TABLE IF NOT EXISTS reset_events (
   id TEXT PRIMARY KEY,
-  happened_at TEXT NOT NULL,
-  title TEXT NOT NULL,
-  kind TEXT NOT NULL CHECK (kind IN ('global', 'banked', 'incident', 'other')),
+  announced_at TEXT NOT NULL,
+  reset_type TEXT NOT NULL CHECK (reset_type IN ('regular', 'banked')),
+  text TEXT NOT NULL,
+  source_type TEXT,
+  source_author TEXT,
   source_url TEXT,
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  synced_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX IF NOT EXISTS idx_reset_events_happened_at ON reset_events(happened_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_reset_events_announced_at
+  ON reset_events(announced_at DESC);
