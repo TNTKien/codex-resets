@@ -7,7 +7,7 @@ export { BegCounter };
 type Env = {
   ASSETS: Fetcher;
   BEG_COUNTER: DurableObjectNamespace;
-  DB?: D1Database;
+  CODEX_RESETS?: D1Database;
 };
 
 type WaitUntilContext = {
@@ -75,6 +75,7 @@ async function archiveResets(db: D1Database, snapshot: ResetSnapshot) {
       source_author=excluded.source_author,
       source_url=excluded.source_url,
       synced_at=CURRENT_TIMESTAMP`;
+
   await db.batch(snapshot.resets.map(item => db.prepare(sql).bind(
     item.id,
     item.announcedAt,
@@ -86,12 +87,18 @@ async function archiveResets(db: D1Database, snapshot: ResetSnapshot) {
   )));
 }
 
-app.get('/api/health', c => c.json({ ok: true, service: 'codex-resets' }));
+app.get('/api/health', c => c.json({
+  ok: true,
+  service: 'codex-resets',
+  d1: Boolean(c.env.CODEX_RESETS),
+}));
 
 app.get('/api/resets', async c => {
   try {
     const snapshot = await resetSnapshot(c.req.raw, c.executionCtx);
-    if (c.env.DB) c.executionCtx.waitUntil(archiveResets(c.env.DB, snapshot));
+    if (c.env.CODEX_RESETS) {
+      c.executionCtx.waitUntil(archiveResets(c.env.CODEX_RESETS, snapshot));
+    }
     return Response.json(snapshot, {
       headers: {
         'cache-control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=300',
