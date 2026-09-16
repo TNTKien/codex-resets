@@ -1,0 +1,56 @@
+/* Post-theme corrections for Vietnamese rendering and heatmap geometry. */
+
+body {
+  font-family: "Segoe UI", "Noto Sans", Arial, Helvetica, sans-serif;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+/* Keep the decorative hierarchy without relying on serif glyph fallback. */
+.wordmark-copy strong,
+.latest-relative,
+.section-heading h2,
+.stat-card strong,
+.beg-count strong,
+.beg-pill-main {
+  font-family: "Segoe UI", "Noto Sans", Arial, Helvetica, sans-serif;
+}
+
+.wordmark-copy strong {
+  letter-spacing: .045em;
+}
+
+.wordmark-copy small,
+.theme-toggle,
+.section-eyebrow,
+.stat-card > span:not(.stat-glyph),
+.beg-count span {
+  letter-spacing: .055em;
+}
+
+.temple-banner p,
+.latest-label,
+.latest-date,
+.watch-card p,
+.section-heading p,
+.legend,
+.announcement-meta,
+.announcement p,
+footer {
+  letter-spacing: normal;
+}
+
+/*
+ * Heatmap cells are 14px wide with a 4px gap. The month header previously
+ * used 18px columns plus the same gap, so labels drifted further right on
+ * every week. Match the month columns to the actual cell width.
+ */
+.month-labels {
+  grid-template-columns: repeat(26, 14px) !important;
+}
+
+/* Make month labels less likely to collide near month boundaries. */
+.month-labels span {
+  overflow: visible;
+  white-space: nowrap;
+}
