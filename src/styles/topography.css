@@ -1,0 +1,65 @@
+/* Endfield-style topographic backdrop.
+ * Kept separate from the component layer so it can be tuned independently.
+ */
+
+html {
+  background: #0a0d0b;
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, rgba(9, 12, 10, .42), rgba(8, 11, 9, .82)),
+    #0a0d0b !important;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: url('/topography.svg');
+  background-repeat: repeat;
+  background-position: center top;
+  background-size: 1200px 800px;
+  opacity: .24;
+  filter: contrast(1.08);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(255,255,255,.018) 0,
+      rgba(255,255,255,.018) 1px,
+      transparent 1px,
+      transparent 4px
+    ),
+    radial-gradient(circle at 50% -10%, rgba(255,255,255,.045), transparent 42%),
+    linear-gradient(90deg, rgba(0,0,0,.28), transparent 14%, transparent 86%, rgba(0,0,0,.3));
+  opacity: .8;
+}
+
+.site-shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep both themes readable while preserving the same dark Endfield environment. */
+:root:not([data-theme='dark']) body {
+  color: var(--ink);
+}
+
+@media (max-width: 760px) {
+  body::before {
+    background-size: 900px 600px;
+    opacity: .2;
+  }
+}
