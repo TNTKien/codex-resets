@@ -1,15 +1,15 @@
 ---
 import '../styles/global.css';
-import '../styles/jojo.css';
+import '../styles/genshin.css';
 import ResetDashboard from '../components/ResetDashboard';
 ---
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Theo dõi reset Codex trong một giao diện manga kịch tính, màu sắc và góc cạnh." />
-  <meta name="theme-color" content="#f1d8ff" />
-  <title>Codex Bizarre Reset</title>
+  <meta name="description" content="Theo dõi reset Codex trong một giao diện fantasy-adventure lấy cảm hứng từ game nhập vai thế giới mở." />
+  <meta name="theme-color" content="#dfeaf5" />
+  <title>Codex Wish Tracker</title>
   <script is:inline>
     (() => {
       const key = 'codex-resets-theme';
@@ -19,40 +19,36 @@ import ResetDashboard from '../components/ResetDashboard';
         : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.dataset.theme = theme;
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', theme === 'dark' ? '#160d23' : '#f1d8ff');
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#101b2b' : '#dfeaf5');
     })();
   </script>
 </head>
 <body>
-  <div class="speed-lines" aria-hidden="true"></div>
-  <div class="menace-text menace-a" aria-hidden="true">ゴゴゴ</div>
-  <div class="menace-text menace-b" aria-hidden="true">ゴゴゴ</div>
-
   <main class="site-shell">
     <header class="site-header">
-      <a class="wordmark" href="/" aria-label="Codex Bizarre Reset">
+      <a class="wordmark" href="/" aria-label="Codex Wish Tracker">
         <span class="wordmark-mark" aria-hidden="true">CR</span>
         <span class="wordmark-copy">
-          <strong>CODEX BIZARRE RESET</strong>
-          <small>QUOTA WATCH · VIETNAM</small>
+          <strong>CODEX WISH TRACKER</strong>
+          <small>RESET ARCHIVE · VIETNAM</small>
         </span>
       </a>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Đổi giao diện sáng tối" aria-pressed="false">
-        <span class="theme-toggle-icon" aria-hidden="true">◐</span>
-        <span class="theme-toggle-label">DAY MODE</span>
+        <span class="theme-toggle-icon" aria-hidden="true">✦</span>
+        <span class="theme-toggle-label">DAY</span>
       </button>
     </header>
 
-    <section class="intro bizarre-banner">
-      <span class="banner-sfx" aria-hidden="true">ドン!</span>
-      <p>Bọn mình theo dõi <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a>. Khi quota chuyển động, bảng này cũng chuyển động. Khi chưa có gì… thì ít nhất vẫn có thể tạo dáng thật ngầu và bấm nút cầu reset.</p>
-      <span class="banner-tag">STAND BY</span>
+    <section class="intro genshin-banner">
+      <span class="banner-sigil" aria-hidden="true">✧</span>
+      <p>Bọn mình theo dõi <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> để ghi lại từng lần quota hồi. Khi chưa có reset, bạn vẫn có thể gửi thêm một “wish” vào bộ đếm cho vui.</p>
+      <span class="banner-tag">ADVENTURER LOG</span>
     </section>
 
     <ResetDashboard client:load />
 
     <footer>
-      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Dự án độc lập, không thuộc OpenAI. Giao diện chỉ lấy cảm hứng từ manga hành động kịch tính; không sử dụng artwork hay logo chính thức.</p>
+      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Dự án độc lập, không thuộc OpenAI. Giao diện chỉ lấy cảm hứng từ thẩm mỹ fantasy-adventure của game nhập vai; không dùng logo hay artwork chính thức.</p>
       <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">SOURCE →</a>
     </footer>
   </main>
@@ -70,8 +66,8 @@ import ResetDashboard from '../components/ResetDashboard';
         const dark = root.dataset.theme === 'dark';
         button.setAttribute('aria-pressed', String(dark));
         button.setAttribute('aria-label', dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
-        if (label) label.textContent = dark ? 'NIGHT MODE' : 'DAY MODE';
-        if (meta) meta.setAttribute('content', dark ? '#160d23' : '#f1d8ff');
+        if (label) label.textContent = dark ? 'NIGHT' : 'DAY';
+        if (meta) meta.setAttribute('content', dark ? '#101b2b' : '#dfeaf5');
       };
 
       paint();
