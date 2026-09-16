@@ -121,6 +121,27 @@ export function ScanDivider({ label }: { label?: string }) {
 }
 
 /**
+ * Dependency-light source-copy adaptation of ReEnd's Particles effect.
+ * ReEnd uses 20 four-pixel diamonds that drift 30px vertically with staggered
+ * 3-5 second loops. CSS handles the motion here so this app does not need
+ * Framer Motion just for an ambient background.
+ */
+export function ParticleField({ className = '', count = 20 }: { className?: string; count?: number }) {
+  return <div className={`re-particle-field ${className}`.trim()} aria-hidden="true">
+    {Array.from({ length: count }, (_, i) => <span
+      key={i}
+      className="re-particle-field__particle"
+      style={{
+        left: `${5 + ((i * 17) % 90)}%`,
+        top: `${5 + ((i * 23) % 90)}%`,
+        animationDuration: `${3 + (i % 3)}s`,
+        animationDelay: `${i * 0.3}s`,
+      }}
+    />)}
+  </div>;
+}
+
+/**
  * Dependency-light adaptation of ReEnd's interactive Counter.
  * It counts from the currently displayed value to the next value so live
  * request updates do not restart from zero every time.
