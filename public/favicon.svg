@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Codex Resets">
+  <rect width="64" height="64" rx="8" fill="#111512"/>
+  <path d="M8 11h25v8H17v26h16v8H8z" fill="#F5F7F2"/>
+  <path d="M29 11h17c7 0 12 5 12 12 0 5-3 9-8 11l10 19H49L40 36h-2v17h-9zm9 8v10h7c3 0 5-2 5-5s-2-5-5-5z" fill="#F5F7F2"/>
+  <path d="M8 45h12L8 57z" fill="#DBE13B"/>
+  <path d="M22 53h13l-6-7z" fill="#DBE13B" opacity=".9"/>
+  <path d="M49 8h7v2h-7zM54 13h2v7h-2z" fill="#DBE13B"/>
+</svg>
