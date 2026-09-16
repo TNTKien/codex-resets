@@ -34,7 +34,7 @@ function shortId(value: string) {
 }
 
 function eventTime(value: string) {
-  return new Intl.DateTimeFormat('vi-VN', {
+  return new Intl.DateTimeFormat('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
@@ -151,17 +151,17 @@ export default function BegPanel() {
     title="AIC REQUEST"
     status={streamConnected ? 'online' : 'warning'}
     className="reend-beg"
-    aria-label="Yêu cầu phục hồi quota"
+    aria-label="Quota recovery request"
     headerAction={<TacticalBadge variant={streamConnected ? 'online' : 'warning'}>
       {streamConnected ? 'LIVE' : 'RECONNECTING'}
     </TacticalBadge>}
   >
     <div className="reend-beg__count">
       <span>requests in current cycle</span>
-      <strong>{data.count ? data.count.toLocaleString('vi-VN') : '0'}</strong>
+      <strong>{data.count ? data.count.toLocaleString('en-US') : '0'}</strong>
     </div>
 
-    <EndfieldButton disabled={pending} onClick={beg} aria-label="Gửi một yêu cầu reset Codex">
+    <EndfieldButton disabled={pending} onClick={beg} aria-label="Submit a Codex reset request">
       <span aria-hidden="true">▰</span>
       <span>SUBMIT REQUEST</span>
     </EndfieldButton>
