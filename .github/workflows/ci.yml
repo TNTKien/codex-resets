@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
-      - run: npm install --no-audit --no-fund
-      - run: npm run check
-      - run: npm run build
-      - run: npx wrangler deploy --dry-run
+          bun-version: 1.2.15
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run build
+      - run: bunx wrangler deploy --dry-run
