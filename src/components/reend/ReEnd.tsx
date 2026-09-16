@@ -1,7 +1,14 @@
+import { useEffect, useRef } from 'react';
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 type Status = 'online' | 'warning' | 'offline' | 'scanning';
 type BadgeVariant = 'neutral' | 'online' | 'warning' | 'danger' | 'info';
+export type DataStreamMessageType = 'system' | 'data' | 'warning' | 'classified';
+export type DataStreamMessage = {
+  id: string;
+  text: string;
+  type?: DataStreamMessageType;
+};
 
 type TacticalPanelProps = HTMLAttributes<HTMLDivElement> & {
   title: string;
@@ -110,5 +117,56 @@ export function ScanDivider({ label }: { label?: string }) {
     <span />
     {label && <em>{label}</em>}
     <span />
+  </div>;
+}
+
+/**
+ * Source-copy adaptation of ReEnd's DataStream signature component.
+ * Unlike the showcase component, this version renders real application events
+ * instead of replaying demo messages on a timer.
+ */
+export function DataStream({
+  messages,
+  className = '',
+  active = true,
+  label = 'LIVE FEED',
+}: {
+  messages: DataStreamMessage[];
+  className?: string;
+  active?: boolean;
+  label?: string;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.scrollTop = containerRef.current.scrollHeight;
+  }, [messages]);
+
+  return <div className={`re-data-stream ${className}`.trim()}>
+    <div className="re-data-stream__header">
+      <span className="re-data-stream__terminal" aria-hidden="true">▣</span>
+      <span>{label}</span>
+      <div className="re-data-stream__state">
+        <span className={`re-data-stream__state-dot${active ? ' is-active' : ''}`} aria-hidden="true" />
+        <span>{active ? 'ACTIVE' : 'STANDBY'}</span>
+      </div>
+    </div>
+
+    <div
+      ref={containerRef}
+      className="re-data-stream__body"
+      role="log"
+      aria-live="polite"
+      aria-relevant="additions"
+    >
+      {messages.slice(-12).map(message => <div
+        key={message.id}
+        className={`re-data-stream__line re-data-stream__line--${message.type ?? 'system'}`}
+      >
+        {message.text}
+      </div>)}
+      <span className="re-data-stream__cursor" aria-hidden="true" />
+    </div>
   </div>;
 }
