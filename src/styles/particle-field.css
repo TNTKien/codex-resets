@@ -1,0 +1,59 @@
+/* Particle Effects from ReEnd docs: connected diamonds over an SVG network. */
+
+.re-particle-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.re-particle-field__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.re-particle-field__line {
+  stroke: rgba(236, 241, 236, .24);
+  stroke-width: .7;
+  vector-effect: non-scaling-stroke;
+}
+
+.re-particle-field__particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--acid, #d6ff00);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  animation-name: re-particle-drift-docs;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Remove the large diagonal ambient stripe added by the earlier experiment. */
+.reend-latest__particles {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 78% 52%, color-mix(in srgb, var(--acid, #d6ff00) 7%, transparent), transparent 31%) !important;
+}
+
+@keyframes re-particle-drift-docs {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(2px, -3px); }
+  66% { transform: translate(-2px, 2px); }
+  100% { transform: translate(0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .re-particle-field__particle {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .reend-latest__particles {
+    display: none;
+  }
+}
