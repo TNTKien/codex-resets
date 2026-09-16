@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  CountUp,
   DataStream,
   EndfieldButton,
   TacticalBadge,
@@ -158,7 +159,7 @@ export default function BegPanel() {
   >
     <div className="reend-beg__count">
       <span>requests in current cycle</span>
-      <strong>{data.count ? data.count.toLocaleString('en-US') : '0'}</strong>
+      <strong><CountUp value={data.count} duration={850} /></strong>
     </div>
 
     <EndfieldButton disabled={pending} onClick={beg} aria-label="Submit a Codex reset request">
