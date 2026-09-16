@@ -22,35 +22,34 @@
 }
 
 /*
- * Cycle through three Endfield/HUD-flavoured node markers while preserving the
- * same ReEnd particle positions and network lines: square -> cross -> diamond.
+ * Cycle through three clearly different tactical node markers while preserving
+ * the ReEnd particle positions and network lines: outlined square -> cross -> diamond.
+ * The previous 5-8px filled shapes blurred together at normal viewing size.
  */
 .re-particle-field__particle {
   position: absolute;
-  width: 5px;
-  height: 5px;
   color: var(--acid, #d6ff00);
-  background: currentColor;
-  clip-path: none;
-  filter: drop-shadow(0 0 3px color-mix(in srgb, currentColor 35%, transparent));
   animation-name: re-particle-drift-docs;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
 }
 
-/* square */
+/* outlined square */
 .re-particle-field__particle:nth-of-type(3n + 1) {
-  width: 5px;
-  height: 5px;
-  background: currentColor;
+  width: 8px;
+  height: 8px;
+  background: transparent;
+  border: 1.5px solid currentColor;
   clip-path: none;
+  box-shadow: 0 0 5px color-mix(in srgb, currentColor 20%, transparent);
 }
 
 /* cross */
 .re-particle-field__particle:nth-of-type(3n + 2) {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   background: transparent;
+  border: 0;
   clip-path: none;
 }
 
@@ -62,24 +61,28 @@
   top: 50%;
   background: currentColor;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px color-mix(in srgb, currentColor 18%, transparent);
 }
 
 .re-particle-field__particle:nth-of-type(3n + 2)::before {
-  width: 8px;
+  width: 12px;
   height: 2px;
 }
 
 .re-particle-field__particle:nth-of-type(3n + 2)::after {
   width: 2px;
-  height: 8px;
+  height: 12px;
 }
 
-/* diamond */
+/* filled diamond */
 .re-particle-field__particle:nth-of-type(3n) {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   background: currentColor;
+  border: 0;
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  box-shadow: none;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, currentColor 22%, transparent));
 }
 
 /*
@@ -137,5 +140,29 @@
   .re-particle-field__line {
     stroke: rgba(236, 241, 236, .21);
     stroke-width: .65;
+  }
+
+  /* Keep the marker silhouettes readable on small screens. */
+  .re-particle-field__particle:nth-of-type(3n + 1) {
+    width: 7px;
+    height: 7px;
+  }
+
+  .re-particle-field__particle:nth-of-type(3n + 2) {
+    width: 10px;
+    height: 10px;
+  }
+
+  .re-particle-field__particle:nth-of-type(3n + 2)::before {
+    width: 10px;
+  }
+
+  .re-particle-field__particle:nth-of-type(3n + 2)::after {
+    height: 10px;
+  }
+
+  .re-particle-field__particle:nth-of-type(3n) {
+    width: 7px;
+    height: 7px;
   }
 }
