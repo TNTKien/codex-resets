@@ -1,5 +1,6 @@
-/* Endfield-style topographic backdrop.
- * Kept separate from the component layer so it can be tuned independently.
+/* ReEnd TopoPattern page backdrop.
+ * The contour geometry now comes from the ReEnd marching-squares generator;
+ * this file only positions and tones the rendered component.
  */
 
 html {
@@ -10,22 +11,35 @@ body {
   position: relative;
   isolation: isolate;
   background:
-    linear-gradient(180deg, rgba(9, 12, 10, .42), rgba(8, 11, 9, .82)),
-    #0a0d0b !important;
+    radial-gradient(circle at 50% -12%, rgba(255,255,255,.035), transparent 38%),
+    linear-gradient(180deg, rgba(9,12,10,.18), rgba(6,8,7,.78)),
+    #090c0a !important;
 }
 
-body::before {
-  content: '';
+.site-topography {
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
-  background-image: url('/topography.svg');
-  background-repeat: repeat;
-  background-position: center top;
-  background-size: 1200px 800px;
-  opacity: .24;
-  filter: contrast(1.08);
+  overflow: hidden;
+  color: #9ba29c;
+}
+
+.re-topo-pattern__grain,
+.re-topo-pattern__contours {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.re-topo-pattern__grain {
+  opacity: .026;
+  mix-blend-mode: screen;
+}
+
+.re-topo-pattern__contours {
+  opacity: .16;
 }
 
 body::after {
@@ -37,14 +51,12 @@ body::after {
   background:
     repeating-linear-gradient(
       180deg,
-      rgba(255,255,255,.018) 0,
-      rgba(255,255,255,.018) 1px,
+      rgba(255,255,255,.016) 0,
+      rgba(255,255,255,.016) 1px,
       transparent 1px,
       transparent 4px
     ),
-    radial-gradient(circle at 50% -10%, rgba(255,255,255,.045), transparent 42%),
-    linear-gradient(90deg, rgba(0,0,0,.28), transparent 14%, transparent 86%, rgba(0,0,0,.3));
-  opacity: .8;
+    linear-gradient(90deg, rgba(0,0,0,.31), transparent 13%, transparent 87%, rgba(0,0,0,.33));
 }
 
 .site-shell {
@@ -52,14 +64,17 @@ body::after {
   z-index: 1;
 }
 
-/* Keep both themes readable while preserving the same dark Endfield environment. */
+/* Preserve the dark Endfield environment in both panel themes. */
 :root:not([data-theme='dark']) body {
   color: var(--ink);
 }
 
 @media (max-width: 760px) {
-  body::before {
-    background-size: 900px 600px;
-    opacity: .2;
+  .site-topography {
+    color: #a7aea8;
+  }
+
+  .re-topo-pattern__contours {
+    opacity: .13;
   }
 }
