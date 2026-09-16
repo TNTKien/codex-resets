@@ -32,11 +32,32 @@
   animation-iteration-count: infinite;
 }
 
-/* Remove the large diagonal ambient stripe added by the earlier experiment. */
+/*
+ * Let the LATEST RECOVERY body fill the full height of its stretched grid cell,
+ * so the particle field covers the whole panel instead of only the content area.
+ */
+.reend-latest {
+  display: flex;
+  flex-direction: column;
+}
+
+.reend-latest .re-tactical-panel__body {
+  flex: 1;
+  width: 100%;
+  min-height: 220px;
+}
+
+/* Keep only the connected particle network — no yellow glow or diagonal stripe. */
 .reend-latest__particles {
+  display: block !important;
   opacity: 1;
-  background:
-    radial-gradient(circle at 78% 52%, color-mix(in srgb, var(--acid, #d6ff00) 7%, transparent), transparent 31%) !important;
+  background: none !important;
+}
+
+.reend-latest__particles::before,
+.reend-latest__particles::after {
+  content: none !important;
+  display: none !important;
 }
 
 @keyframes re-particle-drift-docs {
@@ -53,7 +74,17 @@
 }
 
 @media (max-width: 760px) {
+  /* Keep the same ambient network on mobile as well. */
   .reend-latest__particles {
-    display: none;
+    display: block !important;
+  }
+
+  .reend-latest .re-tactical-panel__body {
+    min-height: 250px;
+  }
+
+  .re-particle-field__line {
+    stroke: rgba(236, 241, 236, .21);
+    stroke-width: .65;
   }
 }
