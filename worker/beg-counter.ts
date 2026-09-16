@@ -14,6 +14,8 @@ export type BegSnapshot = {
 
 type Cycle = { id: string | null; since: string | null };
 
+const SSE_WRITE_TIMEOUT_MS = 1_500;
+
 export class BegCounter {
   private sessions = new Set<WritableStreamDefaultWriter<Uint8Array>>();
   private encoder = new TextEncoder();
@@ -35,8 +37,14 @@ export class BegCounter {
           ...snapshot.events,
         ].slice(0, 16),
       };
+
       await this.state.storage.put('snapshot', next);
-      await this.broadcast(next);
+
+      // Never make the POST wait for SSE clients. A slow/disconnected stream can
+      // apply backpressure to writer.write(), which previously left the UI button
+      // disabled even though the counter had already been persisted.
+      this.state.waitUntil(this.broadcast(next));
+
       return this.json(next);
     }
 
@@ -61,7 +69,7 @@ export class BegCounter {
     if (cycle.id && cycle.since && current.cycle_id !== cycle.id) {
       const next = this.emptySnapshot(cycle);
       await this.state.storage.put('snapshot', next);
-      await this.broadcast(next);
+      this.state.waitUntil(this.broadcast(next));
       return next;
     }
 
@@ -84,7 +92,10 @@ export class BegCounter {
     const writer = stream.writable.getWriter();
     this.sessions.add(writer);
 
-    await writer.write(this.event(snapshot));
+    // Initial snapshot should not hold the SSE response open indefinitely if the
+    // connection is already gone before the browser starts consuming it.
+    this.state.waitUntil(this.writeToSession(writer, this.event(snapshot)));
+
     request.signal.addEventListener('abort', () => {
       this.sessions.delete(writer);
       writer.close().catch(() => {});
@@ -101,14 +112,35 @@ export class BegCounter {
   }
 
   private async broadcast(value: BegSnapshot) {
+    if (this.sessions.size === 0) return;
     const payload = this.event(value);
-    await Promise.all([...this.sessions].map(async writer => {
-      try {
-        await writer.write(payload);
-      } catch {
-        this.sessions.delete(writer);
-      }
-    }));
+    await Promise.allSettled(
+      [...this.sessions].map(writer => this.writeToSession(writer, payload)),
+    );
+  }
+
+  private async writeToSession(
+    writer: WritableStreamDefaultWriter<Uint8Array>,
+    payload: Uint8Array,
+  ) {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    try {
+      await Promise.race([
+        writer.write(payload),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error('SSE write timed out')),
+            SSE_WRITE_TIMEOUT_MS,
+          );
+        }),
+      ]);
+    } catch {
+      this.sessions.delete(writer);
+      writer.abort().catch(() => {});
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 
   private event(value: BegSnapshot) {
