@@ -1,8 +1,12 @@
-/* Use Tibo's current X profile avatar for announcement records. */
+/* Use Tibo's current profile avatar for announcement records.
+ * The previous direct pbs.twimg.com URL can render as an empty/black tile,
+ * so use a verified public mirror of the same avatar instead.
+ */
 .announcement-seal {
   overflow: hidden;
   border: 1px solid var(--line);
-  background-image: url('https://pbs.twimg.com/profile_images/2075819673263001600/pj1vyX6I_400x400.jpg');
+  background-color: #171b18;
+  background-image: url('https://images.flash-filling.com/twitter/avatars/cb85be918123.webp');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
