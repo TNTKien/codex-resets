@@ -17,6 +17,11 @@ const EMPTY: Snapshot = {
   events: [],
 };
 
+async function readSnapshot(response: Response): Promise<Snapshot> {
+  if (!response.ok) throw new Error(`beg unavailable (${response.status})`);
+  return await response.json() as Snapshot;
+}
+
 export default function BegPanel() {
   const [data, setData] = useState<Snapshot>(EMPTY);
   const [pending, setPending] = useState(false);
@@ -24,13 +29,13 @@ export default function BegPanel() {
   useEffect(() => {
     const controller = new AbortController();
     fetch('/api/beg', { signal: controller.signal })
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('beg unavailable')))
-      .then(setData)
+      .then(readSnapshot)
+      .then(snapshot => setData(snapshot))
       .catch(() => {});
 
     const stream = new EventSource('/api/beg/live');
     stream.onmessage = event => {
-      try { setData(JSON.parse(event.data)); } catch { /* ignore malformed events */ }
+      try { setData(JSON.parse(event.data) as Snapshot); } catch { /* ignore malformed events */ }
     };
     return () => {
       controller.abort();
@@ -43,7 +48,7 @@ export default function BegPanel() {
     setPending(true);
     try {
       const response = await fetch('/api/beg', { method: 'POST' });
-      if (response.ok) setData(await response.json());
+      setData(await readSnapshot(response));
     } finally {
       setPending(false);
     }
