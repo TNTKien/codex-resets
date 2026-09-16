@@ -6,12 +6,15 @@ import '../styles/topography.css';
 import ResetDashboard from '../components/ResetDashboard';
 import { TopoPattern } from '../components/reend/TopoPattern';
 ---
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Theo dõi reset Codex trong giao diện công nghiệp chiến thuật kiểu Endfield." />
+  <meta name="description" content="Track Codex reset activity through an Endfield-style operations terminal." />
   <meta name="theme-color" content="#d9ddd6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <title>Codex Operations Terminal</title>
   <script is:inline>
     (() => {
@@ -38,7 +41,7 @@ import { TopoPattern } from '../components/reend/TopoPattern';
           <small>AIC // RESET MONITORING TERMINAL</small>
         </span>
       </a>
-      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Đổi giao diện sáng tối" aria-pressed="false">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch color theme" aria-pressed="false">
         <span class="theme-toggle-icon" aria-hidden="true">◧</span>
         <span class="theme-toggle-label">LIGHT SYS</span>
       </button>
@@ -46,14 +49,14 @@ import { TopoPattern } from '../components/reend/TopoPattern';
 
     <section class="intro endfield-banner">
       <span class="banner-sigil" aria-hidden="true">▰</span>
-      <p><strong>OPERATIONS FEED:</strong> hệ thống theo dõi <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> và ghi nhận tín hiệu reset quota. Dữ liệu mới được đồng bộ tự động vào terminal.</p>
+      <p><strong>OPERATIONS FEED:</strong> monitoring <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> for Codex quota reset signals. New telemetry is synchronized into this terminal automatically.</p>
       <span class="banner-tag">AIC ONLINE</span>
     </section>
 
     <ResetDashboard client:load />
 
     <footer>
-      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Dự án độc lập, không thuộc OpenAI hay Hypergryph. UI thử nghiệm tái tạo trực tiếp ngôn ngữ giao diện công nghiệp/chiến thuật của Arknights: Endfield mà không sử dụng asset hoặc logo của game.</p>
+      <p>Data is sourced from the public codex-resets.com API. This is an independent project and is not affiliated with OpenAI or Hypergryph. The interface recreates the industrial tactical language of Arknights: Endfield without using official game assets or logos.</p>
       <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">REPOSITORY //</a>
     </footer>
   </main>
@@ -70,7 +73,7 @@ import { TopoPattern } from '../components/reend/TopoPattern';
       const paint = () => {
         const dark = root.dataset.theme === 'dark';
         button.setAttribute('aria-pressed', String(dark));
-        button.setAttribute('aria-label', dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
+        button.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
         if (label) label.textContent = dark ? 'DARK SYS' : 'LIGHT SYS';
         if (meta) meta.setAttribute('content', dark ? '#111512' : '#d9ddd6');
       };
