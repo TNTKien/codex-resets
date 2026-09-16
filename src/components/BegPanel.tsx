@@ -55,21 +55,21 @@ export default function BegPanel() {
     }
   }
 
-  return <section className="beg-zone" aria-label="Bộ đếm cầu reset">
+  return <section className="beg-zone" aria-label="Bộ đếm wish reset">
     <div className="beg-plaque" aria-hidden="true">
-      <span>STAND BY</span>
-      <small>quota đang bị quan sát</small>
+      <span>WISH</span>
+      <small>mong quota hồi sớm</small>
     </div>
 
     <div className="beg-count">
-      <span>ý chí cầu reset trong kỳ này</span>
+      <span>wish trong kỳ này</span>
       <strong>{data.count ? data.count.toLocaleString('vi-VN') : '0'}</strong>
     </div>
 
-    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Cầu một lần reset Codex">
+    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Gửi một wish cầu reset Codex">
       <span className="beg-pill-flower" aria-hidden="true">✦</span>
-      <span className="beg-pill-main">CẦU RESET!</span>
-      <span className="beg-pill-sub">+1 resolve · +1 hy vọng</span>
+      <span className="beg-pill-main">WISH RESET</span>
+      <span className="beg-pill-sub">+1 hy vọng vào banner quota</span>
     </button>
   </section>;
 }
