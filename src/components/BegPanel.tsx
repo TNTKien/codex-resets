@@ -55,21 +55,21 @@ export default function BegPanel() {
     }
   }
 
-  return <section className="beg-zone" aria-label="Bộ đếm wish reset">
+  return <section className="beg-zone" aria-label="Yêu cầu phục hồi quota">
     <div className="beg-plaque" aria-hidden="true">
-      <span>WISH</span>
-      <small>mong quota hồi sớm</small>
+      <span>AIC REQUEST</span>
+      <small>quota recovery protocol</small>
     </div>
 
     <div className="beg-count">
-      <span>wish trong kỳ này</span>
+      <span>requests in current cycle</span>
       <strong>{data.count ? data.count.toLocaleString('vi-VN') : '0'}</strong>
     </div>
 
-    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Gửi một wish cầu reset Codex">
-      <span className="beg-pill-flower" aria-hidden="true">✦</span>
-      <span className="beg-pill-main">WISH RESET</span>
-      <span className="beg-pill-sub">+1 hy vọng vào banner quota</span>
+    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Gửi một yêu cầu reset Codex">
+      <span className="beg-pill-flower" aria-hidden="true">▰</span>
+      <span className="beg-pill-main">SUBMIT REQUEST</span>
+      <span className="beg-pill-sub">quota recovery / manual input</span>
     </button>
   </section>;
 }
