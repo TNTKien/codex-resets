@@ -1,4 +1,4 @@
-/* Post-theme corrections for Vietnamese rendering and heatmap geometry. */
+/* Post-theme corrections for Vietnamese rendering and heatmap interactions. */
 
 body {
   font-family: "Segoe UI", "Noto Sans", Arial, Helvetica, sans-serif;
@@ -6,7 +6,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Keep the decorative hierarchy without relying on serif glyph fallback. */
 .wordmark-copy strong,
 .latest-relative,
 .section-heading h2,
@@ -16,17 +15,12 @@ body {
   font-family: "Segoe UI", "Noto Sans", Arial, Helvetica, sans-serif;
 }
 
-.wordmark-copy strong {
-  letter-spacing: .045em;
-}
-
+.wordmark-copy strong { letter-spacing: .045em; }
 .wordmark-copy small,
 .theme-toggle,
 .section-eyebrow,
 .stat-card > span:not(.stat-glyph),
-.beg-count span {
-  letter-spacing: .055em;
-}
+.beg-count span { letter-spacing: .055em; }
 
 .temple-banner p,
 .latest-label,
@@ -36,21 +30,155 @@ body {
 .legend,
 .announcement-meta,
 .announcement p,
-footer {
-  letter-spacing: normal;
+footer { letter-spacing: normal; }
+
+/* Heatmap: fixed day labels + horizontally scrollable 53-week canvas. */
+.heatmap-frame {
+  display:grid;
+  grid-template-columns:28px minmax(0, 1fr);
+  gap:8px;
+  align-items:start;
 }
 
-/*
- * Heatmap cells are 14px wide with a 4px gap. The month header previously
- * used 18px columns plus the same gap, so labels drifted further right on
- * every week. Match the month columns to the actual cell width.
- */
+.heatmap-frame > .day-labels {
+  padding-top:24px;
+  width:28px;
+  position:sticky;
+  left:0;
+  z-index:2;
+  background:var(--panel);
+}
+
+.heatmap-scroll {
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding:2px 2px 10px;
+  scrollbar-width:auto;
+  scrollbar-color:var(--line) transparent;
+  overscroll-behavior-x:contain;
+}
+
+.heatmap-scroll::-webkit-scrollbar { height:10px; }
+.heatmap-scroll::-webkit-scrollbar-track { background:transparent; }
+.heatmap-scroll::-webkit-scrollbar-thumb {
+  background:color-mix(in srgb, var(--line) 74%, transparent);
+  border-radius:999px;
+}
+
+.heatmap-canvas {
+  width:max-content;
+  min-width:100%;
+}
+
 .month-labels {
-  grid-template-columns: repeat(26, 14px) !important;
+  display:grid;
+  gap:4px;
+  grid-template-columns:repeat(53, 20px) !important;
+  height:20px;
+  color:var(--muted);
+  font-size:9px;
+  white-space:nowrap;
+}
+.month-labels span { overflow:visible; white-space:nowrap; }
+
+.heatmap-grid {
+  display:grid;
+  grid-template-rows:repeat(7, 20px);
+  grid-auto-flow:column;
+  grid-auto-columns:20px;
+  gap:4px;
 }
 
-/* Make month labels less likely to collide near month boundaries. */
-.month-labels span {
-  overflow: visible;
-  white-space: nowrap;
+.heat-day {
+  appearance:none;
+  width:20px;
+  height:20px;
+  padding:0;
+  border:1px solid var(--line-soft);
+  border-radius:4px;
+  background:var(--paper);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--gold) 18%, transparent);
+  cursor:default;
+  transition:transform .08s ease, outline-color .08s ease, filter .08s ease;
+}
+.heat-day.regular { background:var(--red); border-color:var(--red-dark); }
+.heat-day.banked { background:var(--gold); border-color:#8e6828; }
+.heat-day:hover,
+.heat-day:focus-visible {
+  transform:scale(1.12);
+  z-index:1;
+  outline:2px solid var(--text);
+  outline-offset:1px;
+  filter:brightness(1.06);
+}
+
+/* Floating detail card inspired by the original site's hover interaction. */
+.heat-tooltip {
+  position:fixed;
+  z-index:1000;
+  width:min(320px, calc(100vw - 24px));
+  transform:translate(-50%, -100%);
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:color-mix(in srgb, var(--ink) 94%, var(--panel));
+  color:#f7edd8;
+  box-shadow:0 10px 26px rgba(0,0,0,.34);
+  pointer-events:none;
+  font-size:12px;
+  line-height:1.45;
+}
+.heat-tooltip.below { transform:translate(-50%, 0); }
+.heat-tooltip::after {
+  content:'';
+  position:absolute;
+  left:50%;
+  bottom:-7px;
+  width:12px;
+  height:12px;
+  background:inherit;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  transform:translateX(-50%) rotate(45deg);
+}
+.heat-tooltip.below::after {
+  top:-7px;
+  bottom:auto;
+  border:0;
+  border-left:1px solid var(--line);
+  border-top:1px solid var(--line);
+}
+.heat-tooltip-date {
+  color:var(--gold-soft);
+  font-weight:800;
+  margin-bottom:6px;
+}
+.heat-tooltip-empty { color:#c9baa4; }
+.heat-tooltip-event + .heat-tooltip-event {
+  margin-top:9px;
+  padding-top:9px;
+  border-top:1px solid rgba(255,255,255,.14);
+}
+.heat-tooltip-event-head {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:baseline;
+}
+.heat-tooltip-event-head strong { color:#fff2c3; }
+.heat-tooltip-event-head span { color:#c9baa4; font-size:10px; }
+.heat-tooltip-event p {
+  margin:5px 0 0;
+  display:-webkit-box;
+  -webkit-line-clamp:4;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+@media (max-width: 640px) {
+  .heatmap-frame { grid-template-columns:24px minmax(0, 1fr); gap:6px; }
+  .heatmap-frame > .day-labels { width:24px; }
+  .heatmap-grid { grid-template-rows:repeat(7, 18px); grid-auto-columns:18px; gap:4px; }
+  .heat-day { width:18px; height:18px; }
+  .month-labels { grid-template-columns:repeat(53, 18px) !important; }
 }
