@@ -184,6 +184,26 @@
 .re-scan-divider span:last-child { background: linear-gradient(90deg, var(--line, #606760), transparent); }
 .re-scan-divider em { font: normal 800 8px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .12em; }
 
+/* ReEnd particle effect: 20 4px diamonds, slow vertical drift and opacity pulse. */
+.re-particle-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.re-particle-field__particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--acid, #d6ff00);
+  opacity: .1;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  animation-name: re-particle-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
 /* Source-copy adaptation of ReEnd DataStream. */
 .re-data-stream {
   border: 1px solid var(--line, #606760);
@@ -242,7 +262,14 @@
   animation: re-cursor 1s steps(1,end) infinite;
 }
 
-.reend-latest .re-tactical-panel__body { min-height: 220px; display: flex; flex-direction: column; justify-content: center; }
+.reend-latest .re-tactical-panel__body { min-height: 220px; display: flex; flex-direction: column; justify-content: center; isolation: isolate; }
+.reend-latest .re-tactical-panel__body > :not(.re-particle-field) { position: relative; z-index: 1; }
+.reend-latest__particles {
+  opacity: .82;
+  background:
+    radial-gradient(circle at 78% 52%, color-mix(in srgb, var(--acid, #d6ff00) 8%, transparent), transparent 27%),
+    linear-gradient(112deg, transparent 0 68%, color-mix(in srgb, var(--cyan, #67c7d3) 5%, transparent) 68% 69%, transparent 69%);
+}
 .reend-latest__time { margin-top: 13px; font-size: clamp(54px, 7vw, 84px); line-height: .9; font-weight: 900; letter-spacing: -.055em; }
 .reend-latest__date { margin-top: 14px; color: var(--muted, #7b827b); font: 700 10px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .reend-stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 16px 0; }
@@ -268,6 +295,14 @@
 @keyframes re-pulse { 50% { opacity: .25; } }
 @keyframes re-cursor { 50% { opacity: 0; } }
 @keyframes re-stream-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes re-particle-drift {
+  0%, 100% { transform: translateY(0); opacity: .1; }
+  50% { transform: translateY(-30px); opacity: .4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .re-particle-field__particle { animation: none; opacity: .16; }
+}
 
 @media (max-width: 760px) {
   .latest-grid { grid-template-columns: 1fr; }
@@ -275,4 +310,5 @@
   .re-tactical-panel__header { align-items: flex-start; }
   .re-tactical-panel__status { margin-top: 1px; }
   .re-data-stream__body { height: 132px; }
+  .reend-latest__particles { display: none; }
 }
