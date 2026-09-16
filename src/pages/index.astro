@@ -6,26 +6,74 @@ import ResetDashboard from '../components/ResetDashboard';
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Theo dõi các thông báo reset hạn mức Codex và lịch sử reset công khai." />
-  <meta name="theme-color" content="#28231d" />
+  <meta name="description" content="Canh hộ bạn các thông báo reset hạn mức Codex và lịch sử reset công khai." />
+  <meta name="theme-color" content="#f7f0df" />
   <title>Codex Resets</title>
+  <script is:inline>
+    (() => {
+      const key = 'codex-resets-theme';
+      const saved = localStorage.getItem(key);
+      const theme = saved === 'light' || saved === 'dark'
+        ? saved
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = theme;
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#241f1a' : '#f7f0df');
+    })();
+  </script>
 </head>
 <body>
   <main class="site-shell">
     <header class="site-header">
-      <a class="wordmark" href="/">Codex Resets</a>
+      <a class="wordmark" href="/">
+        <span class="wordmark-mark" aria-hidden="true">↯</span>
+        <span>Codex Resets</span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Đổi giao diện sáng tối" aria-pressed="false">
+        <span class="theme-toggle-icon" aria-hidden="true">☀️</span>
+        <span class="theme-toggle-label">Sáng</span>
+      </button>
     </header>
 
     <section class="intro">
-      <p>Bọn mình theo dõi <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> để cập nhật các thông báo reset Codex, nên bạn không cần phải tự canh liên tục.</p>
+      <p>Bọn mình canh <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> giùm bạn. Có mùi reset là ghi sổ ngay — bạn cứ việc code <span aria-hidden="true">⌨️✨</span></p>
     </section>
 
     <ResetDashboard client:load />
 
     <footer>
-      <p>Dữ liệu được đọc từ API công khai của codex-resets.com. Đây là dự án độc lập, không liên kết với OpenAI và không thể tự reset hạn mức tài khoản.</p>
-      <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">GitHub →</a>
+      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Đây là project độc lập, không thuộc OpenAI và tiếc là nút “khấn” cũng chưa thể reset quota thật.</p>
+      <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">Xem code trên GitHub →</a>
     </footer>
   </main>
+
+  <script is:inline>
+    (() => {
+      const key = 'codex-resets-theme';
+      const root = document.documentElement;
+      const button = document.getElementById('theme-toggle');
+      if (!(button instanceof HTMLButtonElement)) return;
+
+      const icon = button.querySelector('.theme-toggle-icon');
+      const label = button.querySelector('.theme-toggle-label');
+      const meta = document.querySelector('meta[name="theme-color"]');
+
+      const paint = () => {
+        const dark = root.dataset.theme === 'dark';
+        button.setAttribute('aria-pressed', String(dark));
+        button.setAttribute('aria-label', dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
+        if (icon) icon.textContent = dark ? '🌙' : '☀️';
+        if (label) label.textContent = dark ? 'Tối' : 'Sáng';
+        if (meta) meta.setAttribute('content', dark ? '#241f1a' : '#f7f0df');
+      };
+
+      paint();
+      button.addEventListener('click', () => {
+        root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(key, root.dataset.theme);
+        paint();
+      });
+    })();
+  </script>
 </body>
 </html>
