@@ -12,13 +12,13 @@ export type BegSnapshot = {
   events: BegEvent[];
 };
 
-type Env = Record<string, never>;
-
 type Cycle = { id: string | null; since: string | null };
 
-export class BegCounter extends DurableObject<Env> {
+export class BegCounter {
   private sessions = new Set<WritableStreamDefaultWriter<Uint8Array>>();
   private encoder = new TextEncoder();
+
+  constructor(private state: DurableObjectState) {}
 
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
@@ -35,7 +35,7 @@ export class BegCounter extends DurableObject<Env> {
           ...snapshot.events,
         ].slice(0, 16),
       };
-      await this.ctx.storage.put('snapshot', next);
+      await this.state.storage.put('snapshot', next);
       await this.broadcast(next);
       return this.json(next);
     }
@@ -51,16 +51,16 @@ export class BegCounter extends DurableObject<Env> {
   }
 
   private async ensureCycle(cycle: Cycle): Promise<BegSnapshot> {
-    const current = await this.ctx.storage.get<BegSnapshot>('snapshot');
+    const current = await this.state.storage.get<BegSnapshot>('snapshot');
     if (!current) {
       const first = this.emptySnapshot(cycle);
-      await this.ctx.storage.put('snapshot', first);
+      await this.state.storage.put('snapshot', first);
       return first;
     }
 
     if (cycle.id && cycle.since && current.cycle_id !== cycle.id) {
       const next = this.emptySnapshot(cycle);
-      await this.ctx.storage.put('snapshot', next);
+      await this.state.storage.put('snapshot', next);
       await this.broadcast(next);
       return next;
     }
