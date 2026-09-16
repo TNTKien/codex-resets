@@ -1,0 +1,62 @@
+/* Endfield terminal typography: Orbitron first, monospace system fallbacks. */
+:root {
+  --font-terminal: "Orbitron", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+html,
+body,
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-terminal) !important;
+}
+
+.wordmark-copy strong,
+.wordmark-copy small,
+.theme-toggle,
+.endfield-banner,
+.banner-tag,
+.section-eyebrow,
+.latest-label,
+.latest-relative,
+.latest-date,
+.stat-card,
+.month-labels,
+.day-labels,
+.heat-tooltip,
+.announcement-meta,
+.show-all,
+footer,
+.re-tactical-panel,
+.re-tactical-panel__title,
+.re-tactical-panel__status,
+.re-tactical-badge,
+.re-holo-card,
+.re-button,
+.re-loader,
+.re-scan-divider,
+.reend-latest__time,
+.reend-latest__date,
+.reend-beg__count,
+.reend-beg__sub,
+.re-data-stream,
+.re-data-stream__body,
+.re-data-stream__header {
+  font-family: var(--font-terminal) !important;
+}
+
+/* Orbitron is wider than the previous UI font, so avoid excessive tracking. */
+.re-tactical-panel__title,
+.re-tactical-panel__status,
+.re-tactical-badge,
+.re-button,
+.re-data-stream__header,
+.wordmark-copy small {
+  letter-spacing: .075em;
+}
+
+.re-data-stream__body {
+  font-size: 10px;
+  line-height: 1.65;
+}
