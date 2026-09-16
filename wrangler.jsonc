@@ -15,6 +15,12 @@
       { "name": "BEG_COUNTER", "class_name": "BegCounter" }
     ]
   },
+  "d1_databases": [
+    {
+      "binding": "CODEX_RESETS",
+      "database_id": "42472c5c-b4e7-4811-a000-ac1b78a54e6e"
+    }
+  ],
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["BegCounter"] }
   ]
