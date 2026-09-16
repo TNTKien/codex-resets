@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import BegPanel from './BegPanel';
+import {
+  DiamondLoader,
+  EndfieldButton,
+  HoloCard,
+  ScanDivider,
+  TacticalBadge,
+  TacticalPanel,
+} from './reend/ReEnd';
 
 type ResetType = 'regular' | 'banked';
 type ResetSource = { type: string; author: string | null; url: string };
@@ -56,7 +64,15 @@ export default function ResetDashboard() {
   }, []);
 
   if (!data) {
-    return <div className="loading-card">{error ? 'Sổ reset đang thất lạc một lát. Ghé lại sau nhé.' : 'Đang mở sổ, dò tín hiệu reset…'}</div>;
+    return <TacticalPanel
+      title="RESET TELEMETRY"
+      status={error ? 'offline' : 'scanning'}
+      headerAction={<TacticalBadge variant={error ? 'danger' : 'info'}>{error ? 'LINK ERROR' : 'SYNC'}</TacticalBadge>}
+    >
+      {error
+        ? <div className="re-loader"><span>Không thể tải sổ reset. Hãy thử lại sau.</span></div>
+        : <DiamondLoader label="SYNCING RESET TELEMETRY" />}
+    </TacticalPanel>;
   }
 
   const latest = data.latestReset;
@@ -66,18 +82,23 @@ export default function ResetDashboard() {
     {(data.scheduledReset || watch) && <WatchCard scheduled={data.scheduledReset} watch={watch} />}
 
     <section className="latest-grid">
-      <div className="latest-card">
-        <div className="latest-label">Lần gần nhất “hương quota” được hồi</div>
-        <div className="latest-relative">{latest ? relativeTime(latest.announcedAt, now) : 'chưa rõ'}</div>
-        <div className="latest-date">{latest ? formatUtc(latest.announcedAt) : 'Chưa ghi nhận lần reset nào'}</div>
-      </div>
+      <TacticalPanel
+        title="LATEST RECOVERY"
+        status={latest ? 'online' : 'offline'}
+        className="reend-latest"
+        headerAction={<TacticalBadge variant={latest ? 'online' : 'neutral'}>{latest ? 'CONFIRMED' : 'NO DATA'}</TacticalBadge>}
+      >
+        <div className="section-eyebrow">quota reset telemetry / most recent event</div>
+        <div className="reend-latest__time">{latest ? relativeTime(latest.announcedAt, now) : 'chưa rõ'}</div>
+        <div className="reend-latest__date">{latest ? formatUtc(latest.announcedAt) : 'Chưa ghi nhận lần reset nào'}</div>
+      </TacticalPanel>
       <BegPanel />
     </section>
 
-    <section className="stats-grid" aria-label="Thống kê reset">
-      <Stat glyph="壽" label="Tổng số lần reset" value={String(data.stats.total)} />
-      <Stat glyph="時" label="Nhịp reset trung bình" value={formatDays(data.stats.avgIntervalDays)} />
-      <Stat glyph="待" label="Lần chờ lâu nhất" value={formatDays(data.stats.longestIntervalDays)} />
+    <section className="reend-stat-grid" aria-label="Thống kê reset">
+      <HoloCard title="TOTAL RESETS" subtitle="all confirmed events" value={String(data.stats.total)} glyph="◆" />
+      <HoloCard title="AVERAGE INTERVAL" subtitle="mean recovery cadence" value={formatDays(data.stats.avgIntervalDays)} glyph="▥" />
+      <HoloCard title="LONGEST WAIT" subtitle="maximum observed interval" value={formatDays(data.stats.longestIntervalDays)} glyph="◫" />
     </section>
 
     <History resets={data.resets} now={now} />
@@ -87,35 +108,29 @@ export default function ResetDashboard() {
 
 function WatchCard({ scheduled, watch }: { scheduled: ScheduledReset | null; watch: ActiveWatch | null }) {
   if (scheduled?.scheduledFor) {
-    return <section className="watch-card scheduled">
-      <div className="watch-mark">◇</div>
-      <div>
-        <div className="section-eyebrow">Đã có lịch</div>
-        <h2>{formatUtc(scheduled.scheduledFor)}</h2>
-        {scheduled.text && <p>{scheduled.text}</p>}
-        {scheduled.source && <a className="source-link" href={scheduled.source.url} target="_blank" rel="noreferrer">Xem nguồn trên X →</a>}
-      </div>
-    </section>;
+    return <TacticalPanel
+      title="SCHEDULED RESET"
+      status="warning"
+      className="reend-watch"
+      headerAction={<TacticalBadge variant="warning">SCHEDULED</TacticalBadge>}
+    >
+      <h2 className="reend-watch__title">{formatUtc(scheduled.scheduledFor)}</h2>
+      {scheduled.text && <p className="reend-watch__copy">{scheduled.text}</p>}
+      {scheduled.source && <a className="source-link" href={scheduled.source.url} target="_blank" rel="noreferrer">Xem nguồn trên X →</a>}
+    </TacticalPanel>;
   }
 
   if (!watch) return null;
-  return <section className="watch-card">
-    <div className="watch-mark">◉</div>
-    <div className="watch-copy">
-      <div className="section-eyebrow">Đang ngóng tín hiệu · {watch.level}</div>
-      <h2>{watch.chancePercent == null ? 'Có dấu hiệu reset' : `${Math.round(watch.chancePercent)}% khả năng reset`}</h2>
-      <p>{watch.forecastWindow}{watch.text ? ` · ${watch.text}` : ''}</p>
-      {watch.source && <a className="source-link" href={watch.source.url} target="_blank" rel="noreferrer">Xem tín hiệu trên X →</a>}
-    </div>
-  </section>;
-}
-
-function Stat({ glyph, label, value }: { glyph: string; label: string; value: string }) {
-  return <div className="stat-card">
-    <span className="stat-glyph" aria-hidden="true">{glyph}</span>
-    <span>{label}</span>
-    <strong>{value}</strong>
-  </div>;
+  return <TacticalPanel
+    title="ACTIVE WATCH"
+    status="scanning"
+    className="reend-watch"
+    headerAction={<TacticalBadge variant="info">{watch.level}</TacticalBadge>}
+  >
+    <h2 className="reend-watch__title">{watch.chancePercent == null ? 'Có dấu hiệu reset' : `${Math.round(watch.chancePercent)}% khả năng reset`}</h2>
+    <p className="reend-watch__copy">{watch.forecastWindow}{watch.text ? ` · ${watch.text}` : ''}</p>
+    {watch.source && <a className="source-link" href={watch.source.url} target="_blank" rel="noreferrer">Xem tín hiệu trên X →</a>}
+  </TacticalPanel>;
 }
 
 type HeatTooltip = { day: HeatDay; x: number; y: number; below: boolean };
@@ -151,18 +166,18 @@ function History({ resets, now }: { resets: ResetEvent[]; now: number }) {
     showPointerTooltip(day, rect.left + rect.width / 2, rect.top + rect.height / 2);
   };
 
-  return <section className="history-section">
-    <div className="section-heading history-heading">
-      <div>
-        <h2>Sổ lịch reset · 53 tuần</h2>
-        <p>Kéo ngang để xem lịch sử cũ hơn · rê chuột lên ô để xem chi tiết</p>
-      </div>
-      <div className="legend" aria-label="Chú thích">
-        <span><i className="regular" />reset thường</span>
-        <span><i className="banked" />reset tích lũy</span>
-        <span><i />yên ắng</span>
-      </div>
-    </div>
+  return <TacticalPanel
+    title="RESET HISTORY // 53W"
+    status="online"
+    className="reend-section-panel"
+    headerAction={<div className="legend" aria-label="Chú thích">
+      <span><i className="regular" />reset thường</span>
+      <span><i className="banked" />reset tích lũy</span>
+      <span><i />yên ắng</span>
+    </div>}
+  >
+    <p className="reend-watch__copy">Kéo ngang để xem lịch sử cũ hơn · rê chuột lên ô để xem chi tiết.</p>
+    <ScanDivider label="TIMELINE" />
 
     <div className="heatmap-frame">
       <div className="day-labels" aria-hidden="true"><span>T2</span><span>T4</span><span>T6</span></div>
@@ -204,24 +219,25 @@ function History({ resets, now }: { resets: ResetEvent[]; now: number }) {
           <p>{item.text || 'Đã có thông báo reset.'}</p>
         </div>)}
     </div>}
-  </section>;
+  </TacticalPanel>;
 }
 
 function Announcements({ resets, now }: { resets: ResetEvent[]; now: number }) {
   const [expanded, setExpanded] = useState(false);
   const shown = expanded ? resets : resets.slice(0, 3);
 
-  return <section className="announcements">
-    <div className="section-heading">
-      <div>
-        <h2>Sớ ghi tin reset</h2>
-        <p>Giữ nguyên nội dung gốc để tiện đối chiếu</p>
-      </div>
-    </div>
+  return <TacticalPanel
+    title="ANNOUNCEMENT FEED"
+    status="online"
+    className="reend-section-panel"
+    headerAction={<TacticalBadge variant="neutral">{resets.length} RECORDS</TacticalBadge>}
+  >
+    <p className="reend-watch__copy">Giữ nguyên nội dung gốc để tiện đối chiếu.</p>
+    <ScanDivider label="DATA STREAM" />
 
     <div className="announcement-list">
       {shown.map(item => <article className="announcement" key={item.id}>
-        <div className="announcement-seal" aria-hidden="true">告</div>
+        <div className="announcement-seal" aria-hidden="true">◆</div>
         <div className="announcement-body">
           <div className="announcement-meta">
             <span>{relativeTime(item.announcedAt, now)}</span>
@@ -234,10 +250,10 @@ function Announcements({ resets, now }: { resets: ResetEvent[]; now: number }) {
       </article>)}
     </div>
 
-    {resets.length > 3 && <button className="show-all" onClick={() => setExpanded(value => !value)}>
-      {expanded ? 'Khép sổ ↑' : `Mở toàn bộ ${resets.length} ghi chép ↓`}
-    </button>}
-  </section>;
+    {resets.length > 3 && <EndfieldButton className="show-all" onClick={() => setExpanded(value => !value)}>
+      {expanded ? 'COLLAPSE LOG ↑' : `OPEN ALL ${resets.length} RECORDS ↓`}
+    </EndfieldButton>}
+  </TacticalPanel>;
 }
 
 function activeWatch(watch: ActiveWatch | null, now: number) {
