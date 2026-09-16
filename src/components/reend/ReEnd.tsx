@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 type Status = 'online' | 'warning' | 'offline' | 'scanning';
@@ -121,21 +121,63 @@ export function ScanDivider({ label }: { label?: string }) {
 }
 
 /**
- * Dependency-light source-copy adaptation of ReEnd's Particles effect.
- * ReEnd uses 20 four-pixel diamonds that drift 30px vertically with staggered
- * 3-5 second loops. CSS handles the motion here so this app does not need
- * Framer Motion just for an ambient background.
+ * Source-copy adaptation of the Particle Effects example in ReEnd docs.
+ * It uses 12 fixed diamond particles plus SVG lines between nearby points.
  */
-export function ParticleField({ className = '', count = 20 }: { className?: string; count?: number }) {
+export function ParticleField({ className = '' }: { className?: string }) {
+  const particles = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => ({
+      x: 10 + ((i * 7) % 80),
+      y: 15 + ((i * 13) % 70),
+      opacity: 0.3 + (i % 3) * 0.15,
+      delay: i * 300,
+      duration: 2.5 + (i % 3),
+    })),
+    [],
+  );
+
+  const width = 320;
+  const height = 128;
+  const threshold = 100;
+  const lines: { x1: number; y1: number; x2: number; y2: number; key: string }[] = [];
+
+  for (let i = 0; i < particles.length; i += 1) {
+    for (let j = i + 1; j < particles.length; j += 1) {
+      const ax = (particles[i].x / 100) * width;
+      const ay = (particles[i].y / 100) * height;
+      const bx = (particles[j].x / 100) * width;
+      const by = (particles[j].y / 100) * height;
+      if (Math.hypot(ax - bx, ay - by) < threshold) {
+        lines.push({ x1: ax, y1: ay, x2: bx, y2: by, key: `${i}-${j}` });
+      }
+    }
+  }
+
   return <div className={`re-particle-field ${className}`.trim()} aria-hidden="true">
-    {Array.from({ length: count }, (_, i) => <span
+    <svg
+      className="re-particle-field__lines"
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+    >
+      {lines.map(line => <line
+        key={line.key}
+        className="re-particle-field__line"
+        x1={line.x1}
+        y1={line.y1}
+        x2={line.x2}
+        y2={line.y2}
+      />)}
+    </svg>
+
+    {particles.map((particle, i) => <span
       key={i}
       className="re-particle-field__particle"
       style={{
-        left: `${5 + ((i * 17) % 90)}%`,
-        top: `${5 + ((i * 23) % 90)}%`,
-        animationDuration: `${3 + (i % 3)}s`,
-        animationDelay: `${i * 0.3}s`,
+        left: `${particle.x}%`,
+        top: `${particle.y}%`,
+        opacity: particle.opacity,
+        animationDuration: `${particle.duration}s`,
+        animationDelay: `${particle.delay}ms`,
       }}
     />)}
   </div>;
