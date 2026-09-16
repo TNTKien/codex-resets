@@ -4,6 +4,7 @@ import {
   DiamondLoader,
   EndfieldButton,
   HoloCard,
+  ParticleField,
   ScanDivider,
   TacticalBadge,
   TacticalPanel,
@@ -88,6 +89,7 @@ export default function ResetDashboard() {
         className="reend-latest"
         headerAction={<TacticalBadge variant={latest ? 'online' : 'neutral'}>{latest ? 'CONFIRMED' : 'NO DATA'}</TacticalBadge>}
       >
+        <ParticleField className="reend-latest__particles" />
         <div className="section-eyebrow">quota reset telemetry / most recent event</div>
         <div className="reend-latest__time">{latest ? relativeTime(latest.announcedAt, now) : 'unknown'}</div>
         <div className="reend-latest__date">{latest ? formatUtc(latest.announcedAt) : 'No reset has been recorded yet'}</div>
