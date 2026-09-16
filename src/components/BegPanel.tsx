@@ -56,11 +56,13 @@ export default function BegPanel() {
   }
 
   return <section className="beg-zone" aria-label="Bộ đếm cầu reset">
+    <div className="beg-kicker">quota ơi quota à…</div>
     <div className="pls-stack" aria-hidden="true"><span>pls</span><span>pls</span></div>
-    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Cầu một lần reset Codex">
+    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Khấn một lần cho Codex reset">
       <span aria-hidden="true">🙏</span>
-      <b>cầu reset</b>
+      <b>{pending ? 'đang khấn…' : 'khấn reset'}</b>
       <strong>{data.count ? data.count.toLocaleString('vi-VN') : '—'}</strong>
     </button>
+    <div className="beg-footnote">mỗi click = +1 niềm tin ✨</div>
   </section>;
 }
