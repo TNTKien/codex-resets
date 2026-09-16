@@ -1,0 +1,41 @@
+---
+import '../styles/global.css';
+import Countdown from '../components/Countdown';
+import BegPanel from '../components/BegPanel';
+
+const now = Date.now();
+const fallback = {
+  nextResetAt: new Date(now + 1000 * 60 * 60 * 8).toISOString(),
+  totalResets: 48,
+  daysSince: 4,
+  history: [
+    { date: '2026.09.12', title: 'Codex global quota reset fully propagated', type: 'GLOBAL' },
+    { date: '2026.09.08', title: 'Another global quota reset recorded after Astra launch', type: 'GLOBAL' },
+    { date: '2026.09.05', title: 'Plus, Pro and Business receive one banked reset', type: 'BANKED' },
+  ]
+};
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="description" content="Community Codex reset tracker" />
+  <title>Codex Reset</title>
+</head>
+<body>
+  <div class="top-strip"><div class="shell ticker"><span>the quota is temporary. the prayer is forever.</span><span>community tracker — not affiliated with OpenAI</span><span>the quota is temporary. the prayer is forever.</span></div></div>
+  <div class="shell">
+    <header><div class="brand">CODEX RESET</div><nav class="nav"><a href="#history">history</a><a href="#about">about</a><a href="https://github.com/TNTKien/codex-resets">github ↗</a></nav></header>
+    <section class="hero"><h1>put your hands together and <em>pray.</em></h1><small>A community-made watchtower for Codex global reset events, plus one completely scientific prayer counter.</small></section>
+    <main class="grid">
+      <div class="stack">
+        <section class="card dark"><div class="kicker">next watch window</div><Countdown client:load target={fallback.nextResetAt}/><div class="meta-row"><span>community estimate / observation window</span><span>UTC</span></div></section>
+        <div class="stats"><section class="card stat"><div class="kicker">global resets recorded</div><strong>{fallback.totalResets}</strong></section><section class="card stat"><div class="kicker">days since last archived reset</div><strong>{fallback.daysSince}</strong></section></div>
+        <section id="history" class="card history"><div class="history-head"><span>date</span><span>event</span><span>type</span></div>{fallback.history.map(item => <div class="history-row"><span class="date">{item.date}</span><span>{item.title}</span><span class="badge">{item.type}</span></div>)}</section>
+      </div>
+      <BegPanel client:load />
+    </main>
+    <div id="about" class="footer-note">Independent community project. This site does not reset accounts and does not represent an official OpenAI service. Reset records should link back to their original public source as the data layer is connected.</div>
+  </div>
+</body>
+</html>
