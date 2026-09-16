@@ -1,15 +1,15 @@
 ---
 import '../styles/global.css';
-import '../styles/temple-fixes.css';
+import '../styles/jojo.css';
 import ResetDashboard from '../components/ResetDashboard';
 ---
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Canh các thông báo reset Codex trong một giao diện lấy cảm hứng từ đền/chùa Việt." />
-  <meta name="theme-color" content="#f1e2bd" />
-  <title>Điện Cầu Reset · Codex</title>
+  <meta name="description" content="Theo dõi reset Codex trong một giao diện manga kịch tính, màu sắc và góc cạnh." />
+  <meta name="theme-color" content="#f1d8ff" />
+  <title>Codex Bizarre Reset</title>
   <script is:inline>
     (() => {
       const key = 'codex-resets-theme';
@@ -19,40 +19,41 @@ import ResetDashboard from '../components/ResetDashboard';
         : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.dataset.theme = theme;
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', theme === 'dark' ? '#160d09' : '#f1e2bd');
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#160d23' : '#f1d8ff');
     })();
   </script>
 </head>
 <body>
-  <div class="ambient-haze" aria-hidden="true"></div>
-  <main class="site-shell">
-    <div class="roof-ornament" aria-hidden="true"><span></span><i></i><span></span></div>
+  <div class="speed-lines" aria-hidden="true"></div>
+  <div class="menace-text menace-a" aria-hidden="true">ゴゴゴ</div>
+  <div class="menace-text menace-b" aria-hidden="true">ゴゴゴ</div>
 
+  <main class="site-shell">
     <header class="site-header">
-      <a class="wordmark" href="/" aria-label="Điện Cầu Reset Codex">
-        <span class="wordmark-seal" aria-hidden="true">CR</span>
+      <a class="wordmark" href="/" aria-label="Codex Bizarre Reset">
+        <span class="wordmark-mark" aria-hidden="true">CR</span>
         <span class="wordmark-copy">
-          <strong>ĐIỆN CẦU RESET</strong>
-          <small>CODEX · VIỆT NAM</small>
+          <strong>CODEX BIZARRE RESET</strong>
+          <small>QUOTA WATCH · VIETNAM</small>
         </span>
       </a>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Đổi giao diện sáng tối" aria-pressed="false">
-        <span class="theme-toggle-icon" aria-hidden="true">☼</span>
-        <span class="theme-toggle-label">BAN NGÀY</span>
+        <span class="theme-toggle-icon" aria-hidden="true">◐</span>
+        <span class="theme-toggle-label">DAY MODE</span>
       </button>
     </header>
 
-    <section class="intro temple-banner">
-      <span class="banner-knot" aria-hidden="true">◆</span>
-      <p>Bọn mình ngồi canh <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> thay bạn. Có tin reset là ghi sổ ngay; chưa có thì cứ thong thả code, thi thoảng ghé vào “thỉnh” thêm một lần.</p>
-      <span class="banner-knot" aria-hidden="true">◆</span>
+    <section class="intro bizarre-banner">
+      <span class="banner-sfx" aria-hidden="true">ドン!</span>
+      <p>Bọn mình theo dõi <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a>. Khi quota chuyển động, bảng này cũng chuyển động. Khi chưa có gì… thì ít nhất vẫn có thể tạo dáng thật ngầu và bấm nút cầu reset.</p>
+      <span class="banner-tag">STAND BY</span>
     </section>
 
     <ResetDashboard client:load />
 
     <footer>
-      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Đây là dự án độc lập, không thuộc OpenAI; phần giao diện chỉ lấy cảm hứng trang trí từ kiến trúc đền/chùa.</p>
-      <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">Xem mã nguồn →</a>
+      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Dự án độc lập, không thuộc OpenAI. Giao diện chỉ lấy cảm hứng từ manga hành động kịch tính; không sử dụng artwork hay logo chính thức.</p>
+      <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">SOURCE →</a>
     </footer>
   </main>
 
@@ -62,17 +63,15 @@ import ResetDashboard from '../components/ResetDashboard';
       const root = document.documentElement;
       const button = document.getElementById('theme-toggle');
       if (!(button instanceof HTMLButtonElement)) return;
-      const icon = button.querySelector('.theme-toggle-icon');
       const label = button.querySelector('.theme-toggle-label');
       const meta = document.querySelector('meta[name="theme-color"]');
 
       const paint = () => {
         const dark = root.dataset.theme === 'dark';
         button.setAttribute('aria-pressed', String(dark));
-        button.setAttribute('aria-label', dark ? 'Chuyển sang giao diện ban ngày' : 'Chuyển sang giao diện ban đêm');
-        if (icon) icon.textContent = dark ? '☾' : '☼';
-        if (label) label.textContent = dark ? 'BAN ĐÊM' : 'BAN NGÀY';
-        if (meta) meta.setAttribute('content', dark ? '#160d09' : '#f1e2bd');
+        button.setAttribute('aria-label', dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
+        if (label) label.textContent = dark ? 'NIGHT MODE' : 'DAY MODE';
+        if (meta) meta.setAttribute('content', dark ? '#160d23' : '#f1d8ff');
       };
 
       paint();
