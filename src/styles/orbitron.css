@@ -60,3 +60,45 @@ footer,
   font-size: 10px;
   line-height: 1.65;
 }
+
+/* Make the ReEnd hero particles clearly visible against the dark telemetry panel. */
+.reend-latest__particles {
+  opacity: 1;
+  background:
+    radial-gradient(
+      circle at 78% 52%,
+      color-mix(in srgb, var(--acid, #d6ff00) 18%, transparent),
+      transparent 31%
+    ),
+    linear-gradient(
+      112deg,
+      transparent 0 67%,
+      color-mix(in srgb, var(--cyan, #67c7d3) 11%, transparent) 67% 69%,
+      transparent 69%
+    );
+}
+
+.reend-latest__particles .re-particle-field__particle {
+  width: 6px;
+  height: 6px;
+  opacity: .28;
+  background: color-mix(in srgb, var(--acid, #d6ff00) 88%, #fff 12%);
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--acid, #d6ff00) 68%, transparent));
+}
+
+@keyframes re-particle-drift {
+  0%, 100% {
+    transform: translateY(0) scale(.82);
+    opacity: .24;
+  }
+  50% {
+    transform: translateY(-34px) scale(1.14);
+    opacity: .88;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reend-latest__particles .re-particle-field__particle {
+    opacity: .42;
+  }
+}
