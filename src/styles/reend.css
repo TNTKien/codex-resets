@@ -251,12 +251,17 @@
 .reend-watch { margin-bottom: 16px; }
 .reend-watch__title { margin: 9px 0 5px; font-size: 22px; line-height: 1.05; }
 .reend-watch__copy { margin: 0 0 8px; color: var(--muted, #7b827b); font-size: 12px; line-height: 1.55; }
+
+/* Give the live request panel a little more room than the original 310px column. */
+.latest-grid { grid-template-columns: minmax(0, 1fr) minmax(360px, 390px); }
+
 .reend-beg .re-tactical-panel__body { min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: 15px; }
 .reend-beg__count { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
 .reend-beg__count span { color: var(--muted, #7b827b); font: 800 9px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; text-transform: uppercase; letter-spacing: .08em; }
-.reend-beg__count strong { font-size: 38px; line-height: 1; }
+.reend-beg__count strong { min-width: 5ch; text-align: right; font-size: 38px; line-height: 1; font-variant-numeric: tabular-nums; }
 .reend-beg__sub { color: var(--muted, #7b827b); font-size: 9px; letter-spacing: .04em; }
 .reend-beg__stream { margin-top: 2px; }
+.re-count-up { display: inline-block; font-variant-numeric: tabular-nums; }
 
 @keyframes re-spin { to { transform: rotate(360deg); } }
 @keyframes re-scan { from { top: -5%; } to { top: 105%; } }
@@ -265,6 +270,7 @@
 @keyframes re-stream-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
 
 @media (max-width: 760px) {
+  .latest-grid { grid-template-columns: 1fr; }
   .reend-stat-grid { grid-template-columns: 1fr; }
   .re-tactical-panel__header { align-items: flex-start; }
   .re-tactical-panel__status { margin-top: 1px; }
