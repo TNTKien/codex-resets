@@ -6,9 +6,9 @@ import ResetDashboard from '../components/ResetDashboard';
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Canh hộ bạn các thông báo reset hạn mức Codex và lịch sử reset công khai." />
-  <meta name="theme-color" content="#f7f0df" />
-  <title>Codex Resets</title>
+  <meta name="description" content="Trạm radar reset Codex — canh quota, ghi lịch sử, khấn khi cần." />
+  <meta name="theme-color" content="#0b0d14" />
+  <title>Codex Reset Arcade</title>
   <script is:inline>
     (() => {
       const key = 'codex-resets-theme';
@@ -18,32 +18,38 @@ import ResetDashboard from '../components/ResetDashboard';
         : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.dataset.theme = theme;
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', theme === 'dark' ? '#241f1a' : '#f7f0df');
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b0d14' : '#fff6d8');
     })();
   </script>
 </head>
 <body>
+  <div class="scanlines" aria-hidden="true"></div>
   <main class="site-shell">
     <header class="site-header">
-      <a class="wordmark" href="/">
-        <span class="wordmark-mark" aria-hidden="true">↯</span>
-        <span>Codex Resets</span>
+      <a class="wordmark" href="/" aria-label="Codex Reset Arcade">
+        <span class="wordmark-mark" aria-hidden="true">CR</span>
+        <span class="wordmark-copy">
+          <strong>CODEX RESET</strong>
+          <small>ARCADE / VI</small>
+        </span>
       </a>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Đổi giao diện sáng tối" aria-pressed="false">
-        <span class="theme-toggle-icon" aria-hidden="true">☀️</span>
-        <span class="theme-toggle-label">Sáng</span>
+        <span class="theme-toggle-icon" aria-hidden="true">◐</span>
+        <span class="theme-toggle-label">MODE</span>
       </button>
     </header>
 
-    <section class="intro">
-      <p>Bọn mình canh <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> giùm bạn. Có mùi reset là ghi sổ ngay — bạn cứ việc code <span aria-hidden="true">⌨️✨</span></p>
+    <section class="intro arcade-marquee">
+      <span class="marquee-dot" aria-hidden="true"></span>
+      <p>RADAR đang canh <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a>. Có reset là bảng điểm nhảy. Chưa reset thì… bấm nút đỏ và gửi tín hiệu lên vũ trụ.</p>
+      <span class="marquee-tag">ONLINE</span>
     </section>
 
     <ResetDashboard client:load />
 
     <footer>
-      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Đây là project độc lập, không thuộc OpenAI và tiếc là nút “khấn” cũng chưa thể reset quota thật.</p>
-      <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">Xem code trên GitHub →</a>
+      <p>DATA FEED: codex-resets.com · FAN PROJECT · không thuộc OpenAI · nút đỏ không có quyền năng pháp lý với quota.</p>
+      <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">SOURCE.CODE →</a>
     </footer>
   </main>
 
@@ -53,20 +59,14 @@ import ResetDashboard from '../components/ResetDashboard';
       const root = document.documentElement;
       const button = document.getElementById('theme-toggle');
       if (!(button instanceof HTMLButtonElement)) return;
-
-      const icon = button.querySelector('.theme-toggle-icon');
       const label = button.querySelector('.theme-toggle-label');
       const meta = document.querySelector('meta[name="theme-color"]');
-
       const paint = () => {
         const dark = root.dataset.theme === 'dark';
         button.setAttribute('aria-pressed', String(dark));
-        button.setAttribute('aria-label', dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
-        if (icon) icon.textContent = dark ? '🌙' : '☀️';
-        if (label) label.textContent = dark ? 'Tối' : 'Sáng';
-        if (meta) meta.setAttribute('content', dark ? '#241f1a' : '#f7f0df');
+        if (label) label.textContent = dark ? 'NIGHT' : 'DAY';
+        if (meta) meta.setAttribute('content', dark ? '#0b0d14' : '#fff6d8');
       };
-
       paint();
       button.addEventListener('click', () => {
         root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
