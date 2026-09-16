@@ -3,11 +3,12 @@
   "version": "0.2.0",
   "private": true,
   "type": "module",
+  "packageManager": "bun@1.2.15",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "npm run build && wrangler dev",
-    "deploy": "npm run build && wrangler deploy",
+    "preview": "bun run build && wrangler dev",
+    "deploy": "wrangler deploy",
     "check": "astro check"
   },
   "dependencies": {
