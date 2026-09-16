@@ -4,6 +4,7 @@ import '../styles/endfield.css';
 import '../styles/reend.css';
 import '../styles/topography.css';
 import ResetDashboard from '../components/ResetDashboard';
+import { TopoPattern } from '../components/reend/TopoPattern';
 ---
 <html lang="vi">
 <head>
@@ -26,6 +27,8 @@ import ResetDashboard from '../components/ResetDashboard';
   </script>
 </head>
 <body>
+  <TopoPattern width={1200} height={600} layers={20} className="site-topography" />
+
   <main class="site-shell">
     <header class="site-header">
       <a class="wordmark" href="/" aria-label="Codex Operations Terminal">
