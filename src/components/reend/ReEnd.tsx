@@ -121,37 +121,49 @@ export function ScanDivider({ label }: { label?: string }) {
 }
 
 /**
- * Source-copy adaptation of the Particle Effects example in ReEnd docs.
- * It uses 12 fixed diamond particles plus SVG lines between nearby points.
+ * Source-copy adaptation of ReEnd's particle-network effect.
+ * This version uses a deliberately asymmetric free-form topology instead of
+ * distance-based auto-connections so the network silhouette reads as a shape.
  */
 export function ParticleField({ className = '' }: { className?: string }) {
   const particles = useMemo(
-    () => Array.from({ length: 12 }, (_, i) => ({
-      x: 10 + ((i * 7) % 80),
-      y: 15 + ((i * 13) % 70),
-      opacity: 0.3 + (i % 3) * 0.15,
-      delay: i * 300,
-      duration: 2.5 + (i % 3),
-    })),
+    () => [
+      { x: 6, y: 20, opacity: 0.56, delay: 0, duration: 3.2 },
+      { x: 18, y: 31, opacity: 0.42, delay: 180, duration: 3.7 },
+      { x: 31, y: 17, opacity: 0.52, delay: 360, duration: 3.1 },
+      { x: 45, y: 37, opacity: 0.48, delay: 540, duration: 4.0 },
+      { x: 59, y: 24, opacity: 0.58, delay: 720, duration: 3.4 },
+      { x: 75, y: 33, opacity: 0.46, delay: 900, duration: 3.8 },
+      { x: 92, y: 19, opacity: 0.62, delay: 1080, duration: 3.3 },
+      { x: 87, y: 57, opacity: 0.44, delay: 1260, duration: 4.1 },
+      { x: 71, y: 69, opacity: 0.54, delay: 1440, duration: 3.6 },
+      { x: 55, y: 52, opacity: 0.40, delay: 1620, duration: 3.2 },
+      { x: 42, y: 76, opacity: 0.56, delay: 1800, duration: 3.9 },
+      { x: 25, y: 63, opacity: 0.46, delay: 1980, duration: 3.5 },
+      { x: 9, y: 80, opacity: 0.60, delay: 2160, duration: 3.7 },
+      { x: 34, y: 90, opacity: 0.42, delay: 2340, duration: 4.0 },
+      { x: 64, y: 87, opacity: 0.50, delay: 2520, duration: 3.3 },
+    ],
     [],
   );
 
   const width = 320;
   const height = 128;
-  const threshold = 100;
-  const lines: { x1: number; y1: number; x2: number; y2: number; key: string }[] = [];
+  const edges = [
+    [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6],
+    [6, 7], [7, 8], [8, 14], [14, 13], [13, 12], [12, 11], [11, 0],
+    [1, 3], [2, 4], [3, 5], [3, 9], [4, 9], [5, 9], [5, 7],
+    [7, 9], [8, 9], [8, 14], [9, 10], [10, 11], [10, 13], [10, 14],
+    [11, 13], [1, 11], [3, 11], [4, 8], [9, 14],
+  ] as const;
 
-  for (let i = 0; i < particles.length; i += 1) {
-    for (let j = i + 1; j < particles.length; j += 1) {
-      const ax = (particles[i].x / 100) * width;
-      const ay = (particles[i].y / 100) * height;
-      const bx = (particles[j].x / 100) * width;
-      const by = (particles[j].y / 100) * height;
-      if (Math.hypot(ax - bx, ay - by) < threshold) {
-        lines.push({ x1: ax, y1: ay, x2: bx, y2: by, key: `${i}-${j}` });
-      }
-    }
-  }
+  const lines = edges.map(([a, b]) => ({
+    key: `${a}-${b}`,
+    x1: (particles[a].x / 100) * width,
+    y1: (particles[a].y / 100) * height,
+    x2: (particles[b].x / 100) * width,
+    y2: (particles[b].y / 100) * height,
+  }));
 
   return <div className={`re-particle-field ${className}`.trim()} aria-hidden="true">
     <svg
