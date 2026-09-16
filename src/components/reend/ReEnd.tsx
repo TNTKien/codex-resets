@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 type Status = 'online' | 'warning' | 'offline' | 'scanning';
@@ -118,6 +118,62 @@ export function ScanDivider({ label }: { label?: string }) {
     {label && <em>{label}</em>}
     <span />
   </div>;
+}
+
+/**
+ * Dependency-light adaptation of ReEnd's interactive Counter.
+ * It counts from the currently displayed value to the next value so live
+ * request updates do not restart from zero every time.
+ */
+export function CountUp({
+  value,
+  duration = 900,
+  locale = 'en-US',
+  className = '',
+}: {
+  value: number;
+  duration?: number;
+  locale?: string;
+  className?: string;
+}) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const displayedRef = useRef(0);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const from = hasAnimated.current ? displayedRef.current : 0;
+    hasAnimated.current = true;
+
+    if (reduceMotion || from === value) {
+      displayedRef.current = value;
+      setDisplayValue(value);
+      return;
+    }
+
+    let frame = 0;
+    const startedAt = performance.now();
+    const delta = value - from;
+
+    const animate = (now: number) => {
+      const progress = Math.min((now - startedAt) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const next = Math.round(from + delta * eased);
+      displayedRef.current = next;
+      setDisplayValue(next);
+
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [duration, value]);
+
+  const formatter = new Intl.NumberFormat(locale);
+
+  return <span className={`re-count-up ${className}`.trim()} aria-label={formatter.format(value)}>
+    <span aria-hidden="true">{formatter.format(displayValue)}</span>
+  </span>;
 }
 
 /**
