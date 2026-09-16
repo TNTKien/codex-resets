@@ -149,11 +149,11 @@ export default function BegPanel() {
 
   return <TacticalPanel
     title="AIC REQUEST"
-    status={pending ? 'scanning' : streamConnected ? 'online' : 'warning'}
+    status={streamConnected ? 'online' : 'warning'}
     className="reend-beg"
     aria-label="Yêu cầu phục hồi quota"
-    headerAction={<TacticalBadge variant={pending ? 'warning' : streamConnected ? 'online' : 'warning'}>
-      {pending ? 'TRANSMITTING' : streamConnected ? 'LIVE' : 'RECONNECTING'}
+    headerAction={<TacticalBadge variant={streamConnected ? 'online' : 'warning'}>
+      {streamConnected ? 'LIVE' : 'RECONNECTING'}
     </TacticalBadge>}
   >
     <div className="reend-beg__count">
@@ -161,7 +161,7 @@ export default function BegPanel() {
       <strong>{data.count ? data.count.toLocaleString('vi-VN') : '0'}</strong>
     </div>
 
-    <EndfieldButton loading={pending} onClick={beg} aria-label="Gửi một yêu cầu reset Codex">
+    <EndfieldButton disabled={pending} onClick={beg} aria-label="Gửi một yêu cầu reset Codex">
       <span aria-hidden="true">▰</span>
       <span>SUBMIT REQUEST</span>
     </EndfieldButton>
