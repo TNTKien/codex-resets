@@ -36,64 +36,76 @@ export default function ResetDashboard() {
         const response = await fetch('/api/resets');
         if (!response.ok) throw new Error('unavailable');
         const next = await response.json() as Snapshot;
-        if (!cancelled) { setData(next); setError(false); }
+        if (!cancelled) {
+          setData(next);
+          setError(false);
+        }
       } catch {
         if (!cancelled) setError(true);
       }
     };
+
     load();
     const refresh = window.setInterval(load, 60_000);
     const clock = window.setInterval(() => setNow(Date.now()), 30_000);
-    return () => { cancelled = true; clearInterval(refresh); clearInterval(clock); };
+    return () => {
+      cancelled = true;
+      clearInterval(refresh);
+      clearInterval(clock);
+    };
   }, []);
 
-  if (!data) return <div className="loading-card">{error ? 'Reset data is temporarily unavailable.' : 'Watching for reset signals…'}</div>;
+  if (!data) {
+    return <div className="loading-card">{error ? 'Tạm thời chưa tải được dữ liệu reset.' : 'Đang theo dõi tín hiệu reset…'}</div>;
+  }
 
   const latest = data.latestReset;
+  const watch = activeWatch(data.activeWatch, now);
+
   return <>
-    {(data.scheduledReset || activeWatch(data.activeWatch, now)) && <WatchCard scheduled={data.scheduledReset} watch={activeWatch(data.activeWatch, now)} />}
+    {(data.scheduledReset || watch) && <WatchCard scheduled={data.scheduledReset} watch={watch} />}
 
     <section className="latest-grid">
       <div className="latest-card">
-        <div className="section-eyebrow">Latest Codex limit reset</div>
-        <div className="latest-relative">{latest ? relativeDays(latest.announcedAt, now) : 'unknown'}</div>
-        <div className="latest-date">{latest ? formatUtc(latest.announcedAt) : 'No reset recorded'}</div>
-        {latest?.text && <p className="latest-text">{latest.text}</p>}
-        {latest?.source && <a className="source-link" href={latest.source.url} target="_blank" rel="noreferrer">View source on X ↗</a>}
+        <div className="latest-label">Lần reset hạn mức Codex gần nhất</div>
+        <div className="latest-relative">{latest ? relativeTime(latest.announcedAt, now) : 'chưa rõ'}</div>
+        <div className="latest-date">{latest ? formatUtc(latest.announcedAt) : 'Chưa ghi nhận lần reset nào'}</div>
       </div>
       <BegPanel />
     </section>
 
-    <section className="stats-grid" aria-label="Reset statistics">
-      <Stat label="Resets" value={String(data.stats.total)} />
-      <Stat label="Avg. reset interval" value={formatDays(data.stats.avgIntervalDays)} />
-      <Stat label="Longest wait" value={formatDays(data.stats.longestIntervalDays)} />
+    <section className="stats-grid" aria-label="Thống kê reset">
+      <Stat label="Số lần reset" value={String(data.stats.total)} />
+      <Stat label="Khoảng reset trung bình" value={formatDays(data.stats.avgIntervalDays)} />
+      <Stat label="Lần chờ lâu nhất" value={formatDays(data.stats.longestIntervalDays)} />
     </section>
 
     <History resets={data.resets} now={now} />
-    <Announcements resets={data.resets} />
+    <Announcements resets={data.resets} now={now} />
   </>;
 }
 
 function WatchCard({ scheduled, watch }: { scheduled: ScheduledReset | null; watch: ActiveWatch | null }) {
-  if (scheduled?.scheduledFor) return <section className="watch-card scheduled">
-    <div className="watch-icon">⏰</div>
-    <div>
-      <div className="section-eyebrow">Reset scheduled</div>
-      <h2>{formatUtc(scheduled.scheduledFor)}</h2>
-      {scheduled.text && <p>{scheduled.text}</p>}
-      {scheduled.source && <a className="source-link" href={scheduled.source.url} target="_blank" rel="noreferrer">View source ↗</a>}
-    </div>
-  </section>;
+  if (scheduled?.scheduledFor) {
+    return <section className="watch-card scheduled">
+      <div className="watch-mark">⏰</div>
+      <div>
+        <div className="section-eyebrow">Đã lên lịch reset</div>
+        <h2>{formatUtc(scheduled.scheduledFor)}</h2>
+        {scheduled.text && <p>{scheduled.text}</p>}
+        {scheduled.source && <a className="source-link" href={scheduled.source.url} target="_blank" rel="noreferrer">Xem nguồn trên X →</a>}
+      </div>
+    </section>;
+  }
 
   if (!watch) return null;
   return <section className="watch-card">
-    <div className="watch-icon">👀</div>
+    <div className="watch-mark">👀</div>
     <div className="watch-copy">
-      <div className="section-eyebrow">Reset watch · {watch.level}</div>
-      <h2>{watch.chancePercent == null ? 'Reset signal detected' : `${Math.round(watch.chancePercent)}% reset chance`}</h2>
+      <div className="section-eyebrow">Theo dõi reset · {watch.level}</div>
+      <h2>{watch.chancePercent == null ? 'Đã phát hiện tín hiệu reset' : `${Math.round(watch.chancePercent)}% khả năng reset`}</h2>
       <p>{watch.forecastWindow}{watch.text ? ` · ${watch.text}` : ''}</p>
-      {watch.source && <a className="source-link" href={watch.source.url} target="_blank" rel="noreferrer">View signal ↗</a>}
+      {watch.source && <a className="source-link" href={watch.source.url} target="_blank" rel="noreferrer">Xem tín hiệu trên X →</a>}
     </div>
   </section>;
 }
@@ -103,19 +115,28 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function History({ resets, now }: { resets: ResetEvent[]; now: number }) {
-  const weeks = 53;
+  const weeks = 26;
   const days = useMemo(() => heatmapDays(resets, now, weeks), [resets, now]);
   const months = useMemo(() => monthLabels(days), [days]);
+
   return <section className="history-section">
-    <div className="section-heading">
-      <div><h2>Codex reset history</h2><p>Last 53 weeks</p></div>
-      <div className="legend"><span><i className="regular" />regular</span><span><i className="banked" />banked</span><span><i />no reset</span></div>
+    <div className="section-heading history-heading">
+      <div>
+        <h2>Lịch sử reset Codex</h2>
+        <p>26 tuần gần nhất</p>
+      </div>
+      <div className="legend" aria-label="Chú thích">
+        <span><i className="regular" />thường</span>
+        <span><i className="banked" />tích lũy</span>
+        <span><i />không reset</span>
+      </div>
     </div>
+
     <div className="heatmap-scroll">
       <div className="heatmap-layout">
-        <div className="day-labels"><span>Mon</span><span>Wed</span><span>Fri</span></div>
+        <div className="day-labels"><span>T2</span><span>T4</span><span>T6</span></div>
         <div>
-          <div className="month-labels" style={{ gridTemplateColumns: `repeat(${weeks}, 12px)` }}>
+          <div className="month-labels" style={{ gridTemplateColumns: `repeat(${weeks}, 18px)` }}>
             {months.map(item => <span key={`${item.label}-${item.week}`} style={{ gridColumn: `${item.week + 1} / span 4` }}>{item.label}</span>)}
           </div>
           <div className="heatmap-grid">
@@ -127,22 +148,36 @@ function History({ resets, now }: { resets: ResetEvent[]; now: number }) {
   </section>;
 }
 
-function Announcements({ resets }: { resets: ResetEvent[] }) {
+function Announcements({ resets, now }: { resets: ResetEvent[]; now: number }) {
   const [expanded, setExpanded] = useState(false);
   const shown = expanded ? resets : resets.slice(0, 3);
+
   return <section className="announcements">
-    <div className="section-heading"><div><h2>Codex reset announcements</h2><p>Every announcement, preserved for history</p></div></div>
+    <div className="section-heading">
+      <div>
+        <h2>Thông báo reset Codex</h2>
+        <p>Mọi thông báo đều được lưu lại để tra cứu</p>
+      </div>
+    </div>
+
     <div className="announcement-list">
-      {shown.map((item, index) => <article className="announcement" key={item.id}>
-        <div className="announcement-index">{String(index + 1).padStart(2, '0')}</div>
-        <div>
-          <div className="announcement-meta"><span className={`type-badge ${item.resetType}`}>{item.resetType}</span><time>{formatUtc(item.announcedAt)}</time></div>
-          <p>{item.text || 'Reset announcement'}</p>
-          {item.source && <a className="source-link" href={item.source.url} target="_blank" rel="noreferrer">View on X ↗</a>}
+      {shown.map(item => <article className="announcement" key={item.id}>
+        <img className="announcement-avatar" src="https://codex-resets.com/thsottiaux-avatar.jpg" alt="" loading="lazy" />
+        <div className="announcement-body">
+          <div className="announcement-meta">
+            <span>{relativeTime(item.announcedAt, now)}</span>
+            <span>·</span>
+            <time>{formatUtc(item.announcedAt)}</time>
+          </div>
+          <p>{item.text || 'Thông báo reset'}</p>
+          {item.source && <a className="source-link" href={item.source.url} target="_blank" rel="noreferrer">Xem trên X →</a>}
         </div>
       </article>)}
     </div>
-    {resets.length > 3 && <button className="show-all" onClick={() => setExpanded(value => !value)}>{expanded ? 'Show fewer ↑' : `Show all ${resets.length} resets ↓`}</button>}
+
+    {resets.length > 3 && <button className="show-all" onClick={() => setExpanded(value => !value)}>
+      {expanded ? 'Thu gọn ↑' : `Xem toàn bộ ${resets.length} lần reset ↓`}
+    </button>}
   </section>;
 }
 
@@ -151,20 +186,31 @@ function activeWatch(watch: ActiveWatch | null, now: number) {
 }
 
 function formatDays(value: number | null) {
-  return value == null ? '—' : `${value.toFixed(1)}d`;
+  return value == null ? '—' : `${value.toFixed(1)} ngày`;
 }
 
-function relativeDays(value: string, now: number) {
-  const days = Math.max(0, (now - Date.parse(value)) / 86_400_000);
-  if (days < 1 / 24) return 'just now';
-  if (days < 1) return `${Math.max(1, Math.floor(days * 24))}h ago`;
-  const rounded = Math.floor(days);
-  return `${rounded} day${rounded === 1 ? '' : 's'} ago`;
+function relativeTime(value: string, now: number) {
+  const seconds = Math.max(0, Math.floor((now - Date.parse(value)) / 1000));
+  if (seconds < 60) return 'vừa xong';
+  if (seconds < 3600) return `${Math.max(1, Math.floor(seconds / 60))} phút trước`;
+  if (seconds < 86_400) return `${Math.max(1, Math.floor(seconds / 3600))} giờ trước`;
+  const days = Math.floor(seconds / 86_400);
+  if (days < 7) return `${days} ngày trước`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} tuần trước`;
+  return `${Math.floor(days / 30)} tháng trước`;
 }
 
 function formatUtc(value: string) {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'UTC', timeZoneName: 'short',
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
+    timeZoneName: 'short',
   }).format(new Date(value));
 }
 
@@ -189,7 +235,8 @@ function heatmapDays(resets: ResetEvent[], now: number, weeks: number): HeatDay[
     const key = date.toISOString().slice(0, 10);
     const types = byDay.get(key) ?? [];
     const kind: HeatDay['kind'] = types.includes('regular') ? 'regular' : types.includes('banked') ? 'banked' : 'empty';
-    return { key, kind, date, title: `${key}: ${types.length ? types.join(', ') : 'no reset'}` };
+    const labels = types.map(type => type === 'regular' ? 'reset thường' : 'reset tích lũy');
+    return { key, kind, date, title: `${key}: ${labels.length ? labels.join(', ') : 'không reset'}` };
   });
 }
 
@@ -200,7 +247,7 @@ function monthLabels(days: HeatDay[]) {
     const date = days[week * 7].date;
     if (date.getUTCMonth() !== previous) {
       previous = date.getUTCMonth();
-      labels.push({ week, label: date.toLocaleString('en', { month: 'short', timeZone: 'UTC' }) });
+      labels.push({ week, label: `Thg ${date.getUTCMonth() + 1}` });
     }
   }
   return labels;
