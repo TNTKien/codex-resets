@@ -55,19 +55,21 @@ export default function BegPanel() {
     }
   }
 
-  return <section className="beg-zone" aria-label="Máy phát tín hiệu cầu reset">
-    <div className="beg-screen">
-      <span className="beg-screen-label">PRAYER METER</span>
-      <strong>{data.count ? data.count.toLocaleString('vi-VN') : '000000'}</strong>
-      <small>tín hiệu đã gửi</small>
+  return <section className="beg-zone" aria-label="Bộ đếm thỉnh reset">
+    <div className="beg-plaque" aria-hidden="true">
+      <span>心</span>
+      <small>cầu cho quota hồi</small>
     </div>
 
-    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Gửi một tín hiệu cầu reset Codex">
-      <span className="beg-pill-light" aria-hidden="true"></span>
-      <span className="beg-pill-main">ĐẬP NÚT</span>
-      <span className="beg-pill-sub">CẦU RESET</span>
-    </button>
+    <div className="beg-count">
+      <span>lượt thỉnh trong kỳ này</span>
+      <strong>{data.count ? data.count.toLocaleString('vi-VN') : '0'}</strong>
+    </div>
 
-    <div className="beg-footnote">INSERT COIN: 0₫ · MỖI CLICK = +1 HY VỌNG</div>
+    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Thỉnh một lần reset Codex">
+      <span className="beg-pill-flower" aria-hidden="true">✦</span>
+      <span className="beg-pill-main">THỈNH RESET</span>
+      <span className="beg-pill-sub">+1 chút thành tâm</span>
+    </button>
   </section>;
 }
