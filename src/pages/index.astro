@@ -1,15 +1,15 @@
 ---
 import '../styles/global.css';
-import '../styles/genshin.css';
+import '../styles/endfield.css';
 import ResetDashboard from '../components/ResetDashboard';
 ---
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Theo dõi reset Codex trong một giao diện fantasy-adventure lấy cảm hứng từ game nhập vai thế giới mở." />
-  <meta name="theme-color" content="#dfeaf5" />
-  <title>Codex Wish Tracker</title>
+  <meta name="description" content="Theo dõi reset Codex trong giao diện công nghiệp chiến thuật kiểu Endfield." />
+  <meta name="theme-color" content="#d9ddd6" />
+  <title>Codex Operations Terminal</title>
   <script is:inline>
     (() => {
       const key = 'codex-resets-theme';
@@ -19,37 +19,37 @@ import ResetDashboard from '../components/ResetDashboard';
         : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.dataset.theme = theme;
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', theme === 'dark' ? '#101b2b' : '#dfeaf5');
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#111512' : '#d9ddd6');
     })();
   </script>
 </head>
 <body>
   <main class="site-shell">
     <header class="site-header">
-      <a class="wordmark" href="/" aria-label="Codex Wish Tracker">
+      <a class="wordmark" href="/" aria-label="Codex Operations Terminal">
         <span class="wordmark-mark" aria-hidden="true">CR</span>
         <span class="wordmark-copy">
-          <strong>CODEX WISH TRACKER</strong>
-          <small>RESET ARCHIVE · VIETNAM</small>
+          <strong>CODEX OPERATIONS</strong>
+          <small>AIC // RESET MONITORING TERMINAL</small>
         </span>
       </a>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Đổi giao diện sáng tối" aria-pressed="false">
-        <span class="theme-toggle-icon" aria-hidden="true">✦</span>
-        <span class="theme-toggle-label">DAY</span>
+        <span class="theme-toggle-icon" aria-hidden="true">◧</span>
+        <span class="theme-toggle-label">LIGHT SYS</span>
       </button>
     </header>
 
-    <section class="intro genshin-banner">
-      <span class="banner-sigil" aria-hidden="true">✧</span>
-      <p>Bọn mình theo dõi <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> để ghi lại từng lần quota hồi. Khi chưa có reset, bạn vẫn có thể gửi thêm một “wish” vào bộ đếm cho vui.</p>
-      <span class="banner-tag">ADVENTURER LOG</span>
+    <section class="intro endfield-banner">
+      <span class="banner-sigil" aria-hidden="true">▰</span>
+      <p><strong>OPERATIONS FEED:</strong> hệ thống theo dõi <a href="https://x.com/thsottiaux" target="_blank" rel="noreferrer">@thsottiaux</a> và ghi nhận tín hiệu reset quota. Dữ liệu mới được đồng bộ tự động vào terminal.</p>
+      <span class="banner-tag">AIC ONLINE</span>
     </section>
 
     <ResetDashboard client:load />
 
     <footer>
-      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Dự án độc lập, không thuộc OpenAI. Giao diện chỉ lấy cảm hứng từ thẩm mỹ fantasy-adventure của game nhập vai; không dùng logo hay artwork chính thức.</p>
-      <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">SOURCE →</a>
+      <p>Dữ liệu lấy từ API công khai của codex-resets.com. Dự án độc lập, không thuộc OpenAI hay Hypergryph. UI thử nghiệm tái tạo trực tiếp ngôn ngữ giao diện công nghiệp/chiến thuật của Arknights: Endfield mà không sử dụng asset hoặc logo của game.</p>
+      <a href="https://github.com/TNTKien/codex-resets" target="_blank" rel="noreferrer">REPOSITORY //</a>
     </footer>
   </main>
 
@@ -66,8 +66,8 @@ import ResetDashboard from '../components/ResetDashboard';
         const dark = root.dataset.theme === 'dark';
         button.setAttribute('aria-pressed', String(dark));
         button.setAttribute('aria-label', dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
-        if (label) label.textContent = dark ? 'NIGHT' : 'DAY';
-        if (meta) meta.setAttribute('content', dark ? '#101b2b' : '#dfeaf5');
+        if (label) label.textContent = dark ? 'DARK SYS' : 'LIGHT SYS';
+        if (meta) meta.setAttribute('content', dark ? '#111512' : '#d9ddd6');
       };
 
       paint();
