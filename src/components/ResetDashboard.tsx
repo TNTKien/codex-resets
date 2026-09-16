@@ -70,7 +70,7 @@ export default function ResetDashboard() {
       headerAction={<TacticalBadge variant={error ? 'danger' : 'info'}>{error ? 'LINK ERROR' : 'SYNC'}</TacticalBadge>}
     >
       {error
-        ? <div className="re-loader"><span>Không thể tải sổ reset. Hãy thử lại sau.</span></div>
+        ? <div className="re-loader"><span>Unable to load reset telemetry. Please try again later.</span></div>
         : <DiamondLoader label="SYNCING RESET TELEMETRY" />}
     </TacticalPanel>;
   }
@@ -89,13 +89,13 @@ export default function ResetDashboard() {
         headerAction={<TacticalBadge variant={latest ? 'online' : 'neutral'}>{latest ? 'CONFIRMED' : 'NO DATA'}</TacticalBadge>}
       >
         <div className="section-eyebrow">quota reset telemetry / most recent event</div>
-        <div className="reend-latest__time">{latest ? relativeTime(latest.announcedAt, now) : 'chưa rõ'}</div>
-        <div className="reend-latest__date">{latest ? formatUtc(latest.announcedAt) : 'Chưa ghi nhận lần reset nào'}</div>
+        <div className="reend-latest__time">{latest ? relativeTime(latest.announcedAt, now) : 'unknown'}</div>
+        <div className="reend-latest__date">{latest ? formatUtc(latest.announcedAt) : 'No reset has been recorded yet'}</div>
       </TacticalPanel>
       <BegPanel />
     </section>
 
-    <section className="reend-stat-grid" aria-label="Thống kê reset">
+    <section className="reend-stat-grid" aria-label="Reset statistics">
       <HoloCard title="TOTAL RESETS" subtitle="all confirmed events" value={String(data.stats.total)} glyph="◆" />
       <HoloCard title="AVERAGE INTERVAL" subtitle="mean recovery cadence" value={formatDays(data.stats.avgIntervalDays)} glyph="▥" />
       <HoloCard title="LONGEST WAIT" subtitle="maximum observed interval" value={formatDays(data.stats.longestIntervalDays)} glyph="◫" />
@@ -116,7 +116,7 @@ function WatchCard({ scheduled, watch }: { scheduled: ScheduledReset | null; wat
     >
       <h2 className="reend-watch__title">{formatUtc(scheduled.scheduledFor)}</h2>
       {scheduled.text && <p className="reend-watch__copy">{scheduled.text}</p>}
-      {scheduled.source && <a className="source-link" href={scheduled.source.url} target="_blank" rel="noreferrer">Xem nguồn trên X →</a>}
+      {scheduled.source && <a className="source-link" href={scheduled.source.url} target="_blank" rel="noreferrer">View source on X →</a>}
     </TacticalPanel>;
   }
 
@@ -127,9 +127,9 @@ function WatchCard({ scheduled, watch }: { scheduled: ScheduledReset | null; wat
     className="reend-watch"
     headerAction={<TacticalBadge variant="info">{watch.level}</TacticalBadge>}
   >
-    <h2 className="reend-watch__title">{watch.chancePercent == null ? 'Có dấu hiệu reset' : `${Math.round(watch.chancePercent)}% khả năng reset`}</h2>
+    <h2 className="reend-watch__title">{watch.chancePercent == null ? 'Reset signal detected' : `${Math.round(watch.chancePercent)}% reset probability`}</h2>
     <p className="reend-watch__copy">{watch.forecastWindow}{watch.text ? ` · ${watch.text}` : ''}</p>
-    {watch.source && <a className="source-link" href={watch.source.url} target="_blank" rel="noreferrer">Xem tín hiệu trên X →</a>}
+    {watch.source && <a className="source-link" href={watch.source.url} target="_blank" rel="noreferrer">View signal on X →</a>}
   </TacticalPanel>;
 }
 
@@ -170,17 +170,17 @@ function History({ resets, now }: { resets: ResetEvent[]; now: number }) {
     title="RESET HISTORY // 53W"
     status="online"
     className="reend-section-panel"
-    headerAction={<div className="legend" aria-label="Chú thích">
-      <span><i className="regular" />reset thường</span>
-      <span><i className="banked" />reset tích lũy</span>
-      <span><i />yên ắng</span>
+    headerAction={<div className="legend" aria-label="Legend">
+      <span><i className="regular" />regular reset</span>
+      <span><i className="banked" />banked reset</span>
+      <span><i />no reset</span>
     </div>}
   >
-    <p className="reend-watch__copy">Kéo ngang để xem lịch sử cũ hơn · rê chuột lên ô để xem chi tiết.</p>
+    <p className="reend-watch__copy">Scroll horizontally for older history · hover a cell for details.</p>
     <ScanDivider label="TIMELINE" />
 
     <div className="heatmap-frame">
-      <div className="day-labels" aria-hidden="true"><span>T2</span><span>T4</span><span>T6</span></div>
+      <div className="day-labels" aria-hidden="true"><span>MON</span><span>WED</span><span>FRI</span></div>
       <div className="heatmap-scroll" ref={scrollRef} onScroll={() => setTooltip(null)}>
         <div className="heatmap-canvas">
           <div className="month-labels" style={{ gridTemplateColumns: `repeat(${weeks}, 20px)` }}>
@@ -210,13 +210,13 @@ function History({ resets, now }: { resets: ResetEvent[]; now: number }) {
     >
       <div className="heat-tooltip-date">{formatHeatDate(tooltip.day.date)}</div>
       {tooltip.day.events.length === 0
-        ? <div className="heat-tooltip-empty">Không ghi nhận reset.</div>
+        ? <div className="heat-tooltip-empty">No reset recorded.</div>
         : tooltip.day.events.map(item => <div className="heat-tooltip-event" key={item.id}>
           <div className="heat-tooltip-event-head">
-            <strong>{item.resetType === 'regular' ? 'Reset thường' : 'Reset tích lũy'}</strong>
+            <strong>{item.resetType === 'regular' ? 'Regular reset' : 'Banked reset'}</strong>
             <span>{formatHeatTime(item.announcedAt)}</span>
           </div>
-          <p>{item.text || 'Đã có thông báo reset.'}</p>
+          <p>{item.text || 'Reset announcement recorded.'}</p>
         </div>)}
     </div>}
   </TacticalPanel>;
@@ -232,7 +232,7 @@ function Announcements({ resets, now }: { resets: ResetEvent[]; now: number }) {
     className="reend-section-panel"
     headerAction={<TacticalBadge variant="neutral">{resets.length} RECORDS</TacticalBadge>}
   >
-    <p className="reend-watch__copy">Giữ nguyên nội dung gốc để tiện đối chiếu.</p>
+    <p className="reend-watch__copy">Original announcement text is preserved for verification.</p>
     <ScanDivider label="DATA STREAM" />
 
     <div className="announcement-list">
@@ -244,8 +244,8 @@ function Announcements({ resets, now }: { resets: ResetEvent[]; now: number }) {
             <span>·</span>
             <time>{formatUtc(item.announcedAt)}</time>
           </div>
-          <p>{item.text || 'Đã có thông báo reset'}</p>
-          {item.source && <a className="source-link" href={item.source.url} target="_blank" rel="noreferrer">Mở bài gốc trên X →</a>}
+          <p>{item.text || 'Reset announcement recorded'}</p>
+          {item.source && <a className="source-link" href={item.source.url} target="_blank" rel="noreferrer">Open original post on X →</a>}
         </div>
       </article>)}
     </div>
@@ -261,24 +261,25 @@ function activeWatch(watch: ActiveWatch | null, now: number) {
 }
 
 function formatDays(value: number | null) {
-  return value == null ? '—' : `${value.toFixed(1)} ngày`;
+  return value == null ? '—' : `${value.toFixed(1)} days`;
 }
 
 function relativeTime(value: string, now: number) {
   const seconds = Math.max(0, Math.floor((now - Date.parse(value)) / 1000));
-  if (seconds < 60) return 'vừa xong';
-  if (seconds < 3600) return `${Math.max(1, Math.floor(seconds / 60))} phút trước`;
-  if (seconds < 86_400) return `${Math.max(1, Math.floor(seconds / 3600))} giờ trước`;
+  if (seconds < 60) return 'just now';
+  if (seconds < 3600) return `${Math.max(1, Math.floor(seconds / 60))} min ago`;
+  if (seconds < 86_400) return `${Math.max(1, Math.floor(seconds / 3600))} hr ago`;
   const days = Math.floor(seconds / 86_400);
-  if (days < 7) return `${days} ngày trước`;
+  if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
   const weeks = Math.floor(days / 7);
-  if (weeks < 5) return `${weeks} tuần trước`;
-  return `${Math.floor(days / 30)} tháng trước`;
+  if (weeks < 5) return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months === 1 ? '' : 's'} ago`;
 }
 
 function formatUtc(value: string) {
-  return new Intl.DateTimeFormat('vi-VN', {
-    day: 'numeric',
+  return new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
@@ -290,13 +291,13 @@ function formatUtc(value: string) {
 }
 
 function formatHeatDate(date: Date) {
-  return `${new Intl.DateTimeFormat('vi-VN', {
-    day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
+  return `${new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC',
   }).format(date)} (UTC)`;
 }
 
 function formatHeatTime(value: string) {
-  return new Intl.DateTimeFormat('vi-VN', {
+  return new Intl.DateTimeFormat('en-GB', {
     hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC',
   }).format(new Date(value));
 }
@@ -329,15 +330,15 @@ function heatmapDays(resets: ResetEvent[], now: number, weeks: number): HeatDay[
     const events = byDay.get(key) ?? [];
     const types = events.map(item => item.resetType);
     const kind: HeatDay['kind'] = types.includes('regular') ? 'regular' : types.includes('banked') ? 'banked' : 'empty';
-    const labels = types.map(type => type === 'regular' ? 'reset thường' : 'reset tích lũy');
-    return { key, kind, date, events, title: `${key}: ${labels.length ? labels.join(', ') : 'không reset'}` };
+    const labels = types.map(type => type === 'regular' ? 'regular reset' : 'banked reset');
+    return { key, kind, date, events, title: `${key}: ${labels.length ? labels.join(', ') : 'no reset'}` };
   });
 }
 
 function heatAriaLabel(day: HeatDay) {
   const date = formatHeatDate(day.date);
-  if (day.events.length === 0) return `${date}: không có reset`;
-  const kinds = day.events.map(item => item.resetType === 'regular' ? 'reset thường' : 'reset tích lũy').join(', ');
+  if (day.events.length === 0) return `${date}: no reset`;
+  const kinds = day.events.map(item => item.resetType === 'regular' ? 'regular reset' : 'banked reset').join(', ');
   return `${date}: ${kinds}`;
 }
 
@@ -348,7 +349,7 @@ function monthLabels(days: HeatDay[]) {
     const date = days[week * 7].date;
     if (date.getUTCMonth() !== previous) {
       previous = date.getUTCMonth();
-      labels.push({ week, label: `Thg ${date.getUTCMonth() + 1}` });
+      labels.push({ week, label: new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'UTC' }).format(date).toUpperCase() });
     }
   }
   return labels;
