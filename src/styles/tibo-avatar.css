@@ -1,0 +1,15 @@
+/* Use Tibo's current X profile avatar for announcement records. */
+.announcement-seal {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background-image: url('https://pbs.twimg.com/profile_images/2075819673263001600/pj1vyX6I_400x400.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+.announcement-seal::after {
+  content: none !important;
+  display: none !important;
+}
