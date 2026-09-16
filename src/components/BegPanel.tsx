@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { EndfieldButton, TacticalBadge, TacticalPanel } from './reend/ReEnd';
 
 type EventItem = { request_id: string; country: string; at: string };
 type Snapshot = {
@@ -55,21 +56,23 @@ export default function BegPanel() {
     }
   }
 
-  return <section className="beg-zone" aria-label="Yêu cầu phục hồi quota">
-    <div className="beg-plaque" aria-hidden="true">
-      <span>AIC REQUEST</span>
-      <small>quota recovery protocol</small>
-    </div>
-
-    <div className="beg-count">
+  return <TacticalPanel
+    title="AIC REQUEST"
+    status={pending ? 'scanning' : 'online'}
+    className="reend-beg"
+    aria-label="Yêu cầu phục hồi quota"
+    headerAction={<TacticalBadge variant={pending ? 'warning' : 'online'}>{pending ? 'TRANSMITTING' : 'READY'}</TacticalBadge>}
+  >
+    <div className="reend-beg__count">
       <span>requests in current cycle</span>
       <strong>{data.count ? data.count.toLocaleString('vi-VN') : '0'}</strong>
     </div>
 
-    <button className="beg-pill" disabled={pending} onClick={beg} aria-label="Gửi một yêu cầu reset Codex">
-      <span className="beg-pill-flower" aria-hidden="true">▰</span>
-      <span className="beg-pill-main">SUBMIT REQUEST</span>
-      <span className="beg-pill-sub">quota recovery / manual input</span>
-    </button>
-  </section>;
+    <EndfieldButton loading={pending} onClick={beg} aria-label="Gửi một yêu cầu reset Codex">
+      <span aria-hidden="true">▰</span>
+      <span>SUBMIT REQUEST</span>
+    </EndfieldButton>
+
+    <div className="reend-beg__sub">quota recovery / manual input / cycle {data.cycle_id || 'unresolved'}</div>
+  </TacticalPanel>;
 }
