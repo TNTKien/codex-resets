@@ -6,9 +6,15 @@ export { BegCounter };
 
 type Env = {
   ASSETS: Fetcher;
-  BEG_COUNTER: DurableObjectNamespace<BegCounter>;
+  BEG_COUNTER: DurableObjectNamespace;
   DB?: D1Database;
 };
+
+type WaitUntilContext = {
+  waitUntil(promise: Promise<unknown>): void;
+};
+
+type DefaultCacheStorage = CacheStorage & { default: Cache };
 
 const app = new Hono<{ Bindings: Env }>();
 const EDGE_CACHE_SECONDS = 60;
@@ -22,8 +28,8 @@ function snapshotCacheKey(request: Request) {
   return new Request(url.toString(), { method: 'GET' });
 }
 
-async function resetSnapshot(request: Request, ctx: ExecutionContext): Promise<ResetSnapshot> {
-  const cache = caches.default;
+async function resetSnapshot(request: Request, ctx: WaitUntilContext): Promise<ResetSnapshot> {
+  const cache = (caches as DefaultCacheStorage).default;
   const key = snapshotCacheKey(request);
   const cached = await cache.match(key);
   if (cached) return await cached.json() as ResetSnapshot;
@@ -36,7 +42,7 @@ async function resetSnapshot(request: Request, ctx: ExecutionContext): Promise<R
   return snapshot;
 }
 
-async function currentCycle(request: Request, ctx: ExecutionContext) {
+async function currentCycle(request: Request, ctx: WaitUntilContext) {
   try {
     const snapshot = await resetSnapshot(request, ctx);
     const latest = snapshot.latestReset;
