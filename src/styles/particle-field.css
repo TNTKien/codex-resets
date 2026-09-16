@@ -1,4 +1,4 @@
-/* Particle Effects from ReEnd docs: connected diamonds over an SVG network. */
+/* Particle Effects from ReEnd docs: connected tactical nodes over an SVG network. */
 
 .re-particle-field {
   position: absolute;
@@ -21,15 +21,65 @@
   vector-effect: non-scaling-stroke;
 }
 
+/*
+ * Cycle through three Endfield/HUD-flavoured node markers while preserving the
+ * same ReEnd particle positions and network lines: square -> cross -> diamond.
+ */
 .re-particle-field__particle {
   position: absolute;
-  width: 4px;
-  height: 4px;
-  background: var(--acid, #d6ff00);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  width: 5px;
+  height: 5px;
+  color: var(--acid, #d6ff00);
+  background: currentColor;
+  clip-path: none;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, currentColor 35%, transparent));
   animation-name: re-particle-drift-docs;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+}
+
+/* square */
+.re-particle-field__particle:nth-of-type(3n + 1) {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  clip-path: none;
+}
+
+/* cross */
+.re-particle-field__particle:nth-of-type(3n + 2) {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+  clip-path: none;
+}
+
+.re-particle-field__particle:nth-of-type(3n + 2)::before,
+.re-particle-field__particle:nth-of-type(3n + 2)::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.re-particle-field__particle:nth-of-type(3n + 2)::before {
+  width: 8px;
+  height: 2px;
+}
+
+.re-particle-field__particle:nth-of-type(3n + 2)::after {
+  width: 2px;
+  height: 8px;
+}
+
+/* diamond */
+.re-particle-field__particle:nth-of-type(3n) {
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
 
 /*
@@ -61,15 +111,16 @@
 }
 
 @keyframes re-particle-drift-docs {
-  0% { transform: translate(0, 0); }
-  33% { transform: translate(2px, -3px); }
-  66% { transform: translate(-2px, 2px); }
-  100% { transform: translate(0, 0); }
+  0% { transform: translate(-50%, -50%) translate(0, 0); }
+  33% { transform: translate(-50%, -50%) translate(2px, -3px); }
+  66% { transform: translate(-50%, -50%) translate(-2px, 2px); }
+  100% { transform: translate(-50%, -50%) translate(0, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .re-particle-field__particle {
     animation: none;
+    transform: translate(-50%, -50%);
   }
 }
 
