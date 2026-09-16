@@ -56,7 +56,7 @@ export default function ResetDashboard() {
   }, []);
 
   if (!data) {
-    return <div className="loading-card">{error ? 'Tạm thời chưa tải được dữ liệu reset.' : 'Đang theo dõi tín hiệu reset…'}</div>;
+    return <div className="loading-card">{error ? 'Máy dò reset đang dỗi. Thử lại sau một chút nhé 🫠' : 'Đang ngóng tín hiệu reset… 👀'}</div>;
   }
 
   const latest = data.latestReset;
@@ -67,17 +67,17 @@ export default function ResetDashboard() {
 
     <section className="latest-grid">
       <div className="latest-card">
-        <div className="latest-label">Lần reset hạn mức Codex gần nhất</div>
+        <div className="latest-label">Lần gần nhất Codex được “hồi mana”</div>
         <div className="latest-relative">{latest ? relativeTime(latest.announcedAt, now) : 'chưa rõ'}</div>
-        <div className="latest-date">{latest ? formatUtc(latest.announcedAt) : 'Chưa ghi nhận lần reset nào'}</div>
+        <div className="latest-date">{latest ? formatUtc(latest.announcedAt) : 'Chưa bắt được lần reset nào cả 🥲'}</div>
       </div>
       <BegPanel />
     </section>
 
     <section className="stats-grid" aria-label="Thống kê reset">
-      <Stat label="Số lần reset" value={String(data.stats.total)} />
-      <Stat label="Khoảng reset trung bình" value={formatDays(data.stats.avgIntervalDays)} />
-      <Stat label="Lần chờ lâu nhất" value={formatDays(data.stats.longestIntervalDays)} />
+      <Stat emoji="🔁" label="Tổng số lần reset" value={String(data.stats.total)} />
+      <Stat emoji="⏱️" label="Nhịp reset trung bình" value={formatDays(data.stats.avgIntervalDays)} />
+      <Stat emoji="🫠" label="Kèo chờ dài nhất" value={formatDays(data.stats.longestIntervalDays)} />
     </section>
 
     <History resets={data.resets} now={now} />
@@ -90,10 +90,10 @@ function WatchCard({ scheduled, watch }: { scheduled: ScheduledReset | null; wat
     return <section className="watch-card scheduled">
       <div className="watch-mark">⏰</div>
       <div>
-        <div className="section-eyebrow">Đã lên lịch reset</div>
+        <div className="section-eyebrow">Có lịch rồi nha</div>
         <h2>{formatUtc(scheduled.scheduledFor)}</h2>
         {scheduled.text && <p>{scheduled.text}</p>}
-        {scheduled.source && <a className="source-link" href={scheduled.source.url} target="_blank" rel="noreferrer">Xem nguồn trên X →</a>}
+        {scheduled.source && <a className="source-link" href={scheduled.source.url} target="_blank" rel="noreferrer">Ngó nguồn trên X →</a>}
       </div>
     </section>;
   }
@@ -102,16 +102,20 @@ function WatchCard({ scheduled, watch }: { scheduled: ScheduledReset | null; wat
   return <section className="watch-card">
     <div className="watch-mark">👀</div>
     <div className="watch-copy">
-      <div className="section-eyebrow">Theo dõi reset · {watch.level}</div>
-      <h2>{watch.chancePercent == null ? 'Đã phát hiện tín hiệu reset' : `${Math.round(watch.chancePercent)}% khả năng reset`}</h2>
+      <div className="section-eyebrow">Radar reset · {watch.level}</div>
+      <h2>{watch.chancePercent == null ? 'Có mùi reset đâu đây' : `${Math.round(watch.chancePercent)}% mùi reset`}</h2>
       <p>{watch.forecastWindow}{watch.text ? ` · ${watch.text}` : ''}</p>
       {watch.source && <a className="source-link" href={watch.source.url} target="_blank" rel="noreferrer">Xem tín hiệu trên X →</a>}
     </div>
   </section>;
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return <div className="stat-card"><span>{label}</span><strong>{value}</strong></div>;
+function Stat({ emoji, label, value }: { emoji: string; label: string; value: string }) {
+  return <div className="stat-card">
+    <span className="stat-emoji" aria-hidden="true">{emoji}</span>
+    <span>{label}</span>
+    <strong>{value}</strong>
+  </div>;
 }
 
 function History({ resets, now }: { resets: ResetEvent[]; now: number }) {
@@ -122,13 +126,13 @@ function History({ resets, now }: { resets: ResetEvent[]; now: number }) {
   return <section className="history-section">
     <div className="section-heading history-heading">
       <div>
-        <h2>Lịch sử reset Codex</h2>
-        <p>26 tuần gần nhất</p>
+        <h2>📆 Bản đồ reset 26 tuần</h2>
+        <p>Ô nào sáng là hôm đó Codex được hồi sức</p>
       </div>
       <div className="legend" aria-label="Chú thích">
-        <span><i className="regular" />thường</span>
-        <span><i className="banked" />tích lũy</span>
-        <span><i />không reset</span>
+        <span><i className="regular" />reset thường</span>
+        <span><i className="banked" />reset tích lũy</span>
+        <span><i />im re</span>
       </div>
     </div>
 
@@ -155,8 +159,8 @@ function Announcements({ resets, now }: { resets: ResetEvent[]; now: number }) {
   return <section className="announcements">
     <div className="section-heading">
       <div>
-        <h2>Thông báo reset Codex</h2>
-        <p>Mọi thông báo đều được lưu lại để tra cứu</p>
+        <h2>📣 Nhật ký “reset rồi đó!”</h2>
+        <p>Các thông báo gốc được giữ nguyên để tiện soi lại</p>
       </div>
     </div>
 
@@ -169,14 +173,14 @@ function Announcements({ resets, now }: { resets: ResetEvent[]; now: number }) {
             <span>·</span>
             <time>{formatUtc(item.announcedAt)}</time>
           </div>
-          <p>{item.text || 'Thông báo reset'}</p>
-          {item.source && <a className="source-link" href={item.source.url} target="_blank" rel="noreferrer">Xem trên X →</a>}
+          <p>{item.text || 'Có reset rồi!'}</p>
+          {item.source && <a className="source-link" href={item.source.url} target="_blank" rel="noreferrer">Mở bài gốc trên X →</a>}
         </div>
       </article>)}
     </div>
 
     {resets.length > 3 && <button className="show-all" onClick={() => setExpanded(value => !value)}>
-      {expanded ? 'Thu gọn ↑' : `Xem toàn bộ ${resets.length} lần reset ↓`}
+      {expanded ? 'Đủ rồi, thu lại ↑' : `Đào hết ${resets.length} lần reset ↓`}
     </button>}
   </section>;
 }
