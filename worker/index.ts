@@ -52,13 +52,20 @@ async function currentCycle(request: Request, ctx: WaitUntilContext) {
   }
 }
 
-function durableRequest(path: string, method: string, cycle: { id: string; since: string } | null, country?: string) {
+function durableRequest(
+  path: string,
+  method: string,
+  cycle: { id: string; since: string } | null,
+  country?: string,
+  websocket = false,
+) {
   const headers = new Headers();
   if (cycle) {
     headers.set('x-cycle-id', cycle.id);
     headers.set('x-cycle-since', cycle.since);
   }
   if (country) headers.set('x-country', country);
+  if (websocket) headers.set('Upgrade', 'websocket');
   return new Request(`https://beg-counter${path}`, { method, headers });
 }
 
@@ -121,8 +128,12 @@ app.post('/api/beg', async c => {
 });
 
 app.get('/api/beg/live', async c => {
+  if (c.req.header('Upgrade')?.toLowerCase() !== 'websocket') {
+    return c.text('Expected WebSocket upgrade', 426);
+  }
+
   const cycle = await currentCycle(c.req.raw, c.executionCtx);
-  return counter(c.env).fetch(durableRequest('/live', 'GET', cycle));
+  return counter(c.env).fetch(durableRequest('/live', 'GET', cycle, undefined, true));
 });
 
 app.all('*', c => c.env.ASSETS.fetch(c.req.raw));
