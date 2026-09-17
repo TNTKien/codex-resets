@@ -18,7 +18,7 @@ The app reads the public `codex-resets.com` API, normalizes reset telemetry, ren
 - Announcement feed with links back to original sources
 - Connected particle-network background for the latest recovery panel
 - Global **Request Reset** counter with animated count-up display
-- Live request event stream over Server-Sent Events (SSE)
+- Live request updates over a hibernatable Durable Object WebSocket
 - Request country code from Cloudflare metadata; visitor IP addresses are not persisted
 - Cloudflare D1 archive of normalized reset history
 
@@ -42,7 +42,7 @@ Browser
   │     ├── GET /api/resets
   │     ├── GET /api/beg
   │     ├── POST /api/beg
-  │     └── GET /api/beg/live   (SSE)
+  │     └── WS  /api/beg/live   (hibernatable)
   │
 Cloudflare Worker + Hono
   │
@@ -59,7 +59,7 @@ Cloudflare Worker + Hono
 
 Reset telemetry is cached at the Cloudflare edge for 60 seconds. The worker reads up to three pages of reset history (100 items per page), sanitizes/normalizes the upstream response, and derives interval statistics when necessary.
 
-The request counter uses the latest reset ID as its `cycle_id`. When a new reset cycle is detected, the Durable Object starts a new count automatically. It keeps the latest 16 request events and broadcasts updates to connected clients through SSE.
+The request counter uses the latest reset ID as its `cycle_id`. When a new reset cycle is detected, the Durable Object starts a new count automatically. It keeps the latest 16 request events and broadcasts updates to connected clients through Cloudflare's WebSocket Hibernation API. Idle browser connections can remain open while the Durable Object is evicted from memory, avoiding the continuous billable duration of the previous SSE implementation.
 
 ## Local development
 
@@ -112,9 +112,9 @@ Returns the current global request-counter snapshot.
 
 Adds one request to the current reset cycle.
 
-### `GET /api/beg/live`
+### `WS /api/beg/live`
 
-SSE endpoint for live counter updates.
+WebSocket endpoint for live counter updates. The Durable Object accepts the server side with `acceptWebSocket()`, so the connection can hibernate while idle.
 
 Example payload:
 
@@ -205,7 +205,7 @@ src/
 worker/
   index.ts            Hono routes and asset fallback
   upstream.ts         upstream fetching + normalization
-  beg-counter.ts      Durable Object + SSE counter
+  beg-counter.ts      Durable Object + hibernating WebSocket counter
 
 migrations/
   0001_reset_history.sql
