@@ -80,6 +80,10 @@ export default function BegPanel() {
 
   useEffect(() => {
     const controller = new AbortController();
+    let socket: WebSocket | null = null;
+    let reconnectTimer: number | null = null;
+    let retryCount = 0;
+    let disposed = false;
 
     fetch('/api/beg', { signal: controller.signal })
       .then(readSnapshot)
@@ -96,27 +100,61 @@ export default function BegPanel() {
         appendFeed(`[WARN] Snapshot load failed · ${String(error)}`, 'warning');
       });
 
-    const stream = new EventSource('/api/beg/live');
-    stream.onopen = () => {
-      setStreamConnected(true);
-      appendFeed('[NET] Live request stream connected', 'classified');
-    };
-    stream.onerror = () => {
-      setStreamConnected(false);
-      appendFeed('[WARN] Live stream interrupted · browser will retry', 'warning');
-    };
-    stream.onmessage = event => {
-      try {
-        const snapshot = JSON.parse(event.data) as Snapshot;
-        rememberSnapshot(snapshot, true);
-      } catch {
-        appendFeed('[WARN] Ignored malformed stream payload', 'warning');
-      }
+    const connect = () => {
+      if (disposed) return;
+
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const next = new WebSocket(`${protocol}//${window.location.host}/api/beg/live`);
+      socket = next;
+      let receivedInitialSnapshot = false;
+
+      next.onopen = () => {
+        if (disposed) return;
+        retryCount = 0;
+        setStreamConnected(true);
+        appendFeed('[NET] Hibernating live socket connected', 'classified');
+      };
+
+      next.onmessage = event => {
+        if (disposed) return;
+        try {
+          const snapshot = JSON.parse(String(event.data)) as Snapshot;
+          rememberSnapshot(snapshot, receivedInitialSnapshot);
+          receivedInitialSnapshot = true;
+        } catch {
+          appendFeed('[WARN] Ignored malformed socket payload', 'warning');
+        }
+      };
+
+      next.onerror = () => {
+        if (disposed) return;
+        setStreamConnected(false);
+      };
+
+      next.onclose = () => {
+        if (disposed) return;
+        if (socket === next) socket = null;
+        setStreamConnected(false);
+
+        retryCount += 1;
+        const delay = Math.min(1_000 * (2 ** (retryCount - 1)), 15_000);
+        appendFeed(
+          `[WARN] Live socket interrupted · retrying in ${Math.ceil(delay / 1_000)}s`,
+          'warning',
+        );
+        reconnectTimer = window.setTimeout(connect, delay);
+      };
     };
 
+    connect();
+
     return () => {
+      disposed = true;
       controller.abort();
-      stream.close();
+      if (reconnectTimer !== null) window.clearTimeout(reconnectTimer);
+      if (socket && socket.readyState < WebSocket.CLOSING) {
+        socket.close(1000, 'component unmounted');
+      }
     };
   }, []);
 
