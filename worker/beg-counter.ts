@@ -14,17 +14,14 @@ export type BegSnapshot = {
 
 type Cycle = { id: string | null; since: string | null };
 
-const SSE_WRITE_TIMEOUT_MS = 1_500;
-
 export class BegCounter {
-  private sessions = new Set<WritableStreamDefaultWriter<Uint8Array>>();
-  private encoder = new TextEncoder();
-
   constructor(private state: DurableObjectState) {}
 
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
-    if (request.method === 'GET' && url.pathname.endsWith('/live')) return this.live(request);
+    if (request.method === 'GET' && url.pathname.endsWith('/live')) {
+      return this.live(request);
+    }
 
     const snapshot = await this.ensureCycle(this.cycleFrom(request));
     if (request.method === 'POST') {
@@ -39,11 +36,7 @@ export class BegCounter {
       };
 
       await this.state.storage.put('snapshot', next);
-
-      // Never make the POST wait for SSE clients. A slow/disconnected stream can
-      // apply backpressure to writer.write(), which previously left the UI button
-      // disabled even though the counter had already been persisted.
-      this.state.waitUntil(this.broadcast(next));
+      this.broadcast(next);
 
       return this.json(next);
     }
@@ -69,7 +62,7 @@ export class BegCounter {
     if (cycle.id && cycle.since && current.cycle_id !== cycle.id) {
       const next = this.emptySnapshot(cycle);
       await this.state.storage.put('snapshot', next);
-      this.state.waitUntil(this.broadcast(next));
+      this.broadcast(next);
       return next;
     }
 
@@ -87,64 +80,55 @@ export class BegCounter {
   }
 
   private async live(request: Request): Promise<Response> {
+    if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket') {
+      return new Response('Expected WebSocket upgrade', { status: 426 });
+    }
+
     const snapshot = await this.ensureCycle(this.cycleFrom(request));
-    const stream = new TransformStream<Uint8Array, Uint8Array>();
-    const writer = stream.writable.getWriter();
-    this.sessions.add(writer);
+    const pair = new WebSocketPair();
+    const client = pair[0];
+    const server = pair[1];
 
-    // Initial snapshot should not hold the SSE response open indefinitely if the
-    // connection is already gone before the browser starts consuming it.
-    this.state.waitUntil(this.writeToSession(writer, this.event(snapshot)));
+    // Hibernation API: Cloudflare can evict this Durable Object from memory while
+    // the browser remains connected, so idle live sessions do not accrue duration.
+    this.state.acceptWebSocket(server);
+    server.send(JSON.stringify(snapshot));
 
-    request.signal.addEventListener('abort', () => {
-      this.sessions.delete(writer);
-      writer.close().catch(() => {});
-    }, { once: true });
-
-    return new Response(stream.readable, {
-      headers: {
-        'content-type': 'text/event-stream; charset=utf-8',
-        'cache-control': 'no-cache, no-transform',
-        'connection': 'keep-alive',
-        'x-accel-buffering': 'no',
-      },
+    return new Response(null, {
+      status: 101,
+      webSocket: client,
     });
   }
 
-  private async broadcast(value: BegSnapshot) {
-    if (this.sessions.size === 0) return;
-    const payload = this.event(value);
-    await Promise.allSettled(
-      [...this.sessions].map(writer => this.writeToSession(writer, payload)),
-    );
-  }
+  private broadcast(value: BegSnapshot) {
+    const payload = JSON.stringify(value);
 
-  private async writeToSession(
-    writer: WritableStreamDefaultWriter<Uint8Array>,
-    payload: Uint8Array,
-  ) {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-
-    try {
-      await Promise.race([
-        writer.write(payload),
-        new Promise<never>((_, reject) => {
-          timer = setTimeout(
-            () => reject(new Error('SSE write timed out')),
-            SSE_WRITE_TIMEOUT_MS,
-          );
-        }),
-      ]);
-    } catch {
-      this.sessions.delete(writer);
-      writer.abort().catch(() => {});
-    } finally {
-      if (timer) clearTimeout(timer);
+    for (const socket of this.state.getWebSockets()) {
+      try {
+        socket.send(payload);
+      } catch {
+        try {
+          socket.close(1011, 'broadcast failed');
+        } catch {
+          // The runtime will eventually remove a disconnected socket.
+        }
+      }
     }
   }
 
-  private event(value: BegSnapshot) {
-    return this.encoder.encode(`data: ${JSON.stringify(value)}\n\n`);
+  webSocketMessage(_socket: WebSocket, _message: ArrayBuffer | string) {
+    // The live counter is server-push only. Keeping this handler intentionally
+    // empty avoids application-level keepalives that would wake a hibernated DO.
+  }
+
+  webSocketClose(socket: WebSocket, code: number, reason: string) {
+    // Compatibility dates >= 2026-04-07 auto-reply to close frames, but explicitly
+    // closing here is harmless and keeps behavior clear for older runtimes.
+    try {
+      socket.close(code, reason);
+    } catch {
+      // Socket may already be fully closed.
+    }
   }
 
   private json(value: BegSnapshot) {
